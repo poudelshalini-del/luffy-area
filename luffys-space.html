@@ -777,12 +777,34 @@ function sendAI() {
   speakText(reply);
 }
  
+let jarvisVoice = null;
+function pickJarvisVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return null;
+  // Preference order: deep/male-sounding English voices first
+  const preferredNames = ['Daniel', 'Arthur', 'Oliver', 'Aaron', 'Google UK English Male', 'Microsoft Guy', 'Microsoft Ryan', 'Alex', 'Fred'];
+  for (const name of preferredNames) {
+    const match = voices.find(v => v.name.includes(name));
+    if (match) return match;
+  }
+  // Fallback: any English male-ish voice
+  const enMale = voices.find(v => v.lang.startsWith('en') && /male/i.test(v.name));
+  if (enMale) return enMale;
+  // Fallback: any English voice
+  return voices.find(v => v.lang.startsWith('en')) || voices[0];
+}
+if (window.speechSynthesis) {
+  window.speechSynthesis.onvoiceschanged = () => { jarvisVoice = pickJarvisVoice(); };
+  jarvisVoice = pickJarvisVoice();
+}
+ 
 function speakText(text) {
   if (!window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = 1;
-  utter.pitch = 0.9;
+  if (jarvisVoice) utter.voice = jarvisVoice;
+  utter.rate = 0.95;   // slightly slower, more deliberate
+  utter.pitch = 0.75;  // deeper, calmer tone
   window.speechSynthesis.speak(utter);
 }
  
