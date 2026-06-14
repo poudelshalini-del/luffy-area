@@ -14,7 +14,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body { font-family: var(--font-sans); }
-
+ 
 #login-screen {
   min-height: 100vh;
   background: #0d0d0f;
@@ -40,9 +40,9 @@ body { font-family: var(--font-sans); }
 .login-btn:hover { background: #FFC069; }
 .login-err { color: #ED6F70; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
 .login-demo { color: #3a3a40; font-size: 11px; margin-top: 1.5rem; }
-
+ 
 #app { display: none; background: #0d0d0f; min-height: 100vh; }
-
+ 
 .topbar {
   background: #131316;
   border-bottom: 1px solid #1f1f23;
@@ -63,7 +63,7 @@ body { font-family: var(--font-sans); }
 .clock-display { color: #F4A93B; font-size: 13px; font-weight: 600; background: #1f1a10; padding: 5px 10px; border-radius: 8px; font-variant-numeric: tabular-nums; }
 .logout-btn { background: none; border: 1px solid #2a2a30; border-radius: 8px; padding: 5px 9px; color: #5a5a62; font-size: 11px; cursor: pointer; }
 .logout-btn:hover { border-color: #F4A93B; color: #F4A93B; }
-
+ 
 .nav-tabs {
   background: #131316;
   display: flex;
@@ -83,12 +83,12 @@ body { font-family: var(--font-sans); }
 }
 .nav-tab.active { color: #16110a; background: #F4A93B; }
 .nav-tab i { font-size: 14px; }
-
+ 
 .panel { display: none; padding: 16px; max-width: 720px; margin: 0 auto; }
 .panel.active { display: block; }
-
+ 
 .section-label { color: #4a4a52; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; font-weight: 600; }
-
+ 
 .date-banner {
   background: #131316;
   border: 1px solid #1f1f23;
@@ -100,7 +100,7 @@ body { font-family: var(--font-sans); }
 .date-big { color: #fff; font-size: 22px; font-weight: 700; }
 .date-sub { color: #5a5a62; font-size: 12px; margin-top: 2px; }
 .clock-big { color: #F4A93B; font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
-
+ 
 .now-card {
   background: linear-gradient(135deg, #1f1a10, #131316);
   border: 1px solid #2a2210;
@@ -111,7 +111,7 @@ body { font-family: var(--font-sans); }
 .now-label { color: #F4A93B; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; margin-bottom: 6px; }
 .now-title { color: #fff; font-size: 15px; font-weight: 600; margin-bottom: 3px; }
 .now-time { color: #6a6a72; font-size: 12px; }
-
+ 
 .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
 .quick-card {
   background: #131316;
@@ -125,14 +125,14 @@ body { font-family: var(--font-sans); }
 .quick-card i { font-size: 20px; }
 .quick-card-label { color: #5a5a62; font-size: 11px; }
 .quick-card-val { color: #fff; font-size: 14px; font-weight: 600; }
-
+ 
 .todo-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
 .todo-input { flex: 1; background: #1a1a1e; border: 1px solid #2a2a30; border-radius: var(--border-radius-md); padding: 10px 12px; color: #fff; font-size: 13px; outline: none; }
 .todo-input:focus { border-color: #F4A93B; }
 .todo-input::placeholder { color: #4a4a52; }
 .add-btn { background: #F4A93B; border: none; border-radius: var(--border-radius-md); padding: 10px 14px; color: #16110a; font-size: 13px; cursor: pointer; font-weight: 700; }
 .add-btn:hover { background: #FFC069; }
-
+ 
 .todo-item {
   background: #131316;
   border: 1px solid #1f1f23;
@@ -159,7 +159,7 @@ body { font-family: var(--font-sans); }
 .todo-stat { background: #131316; border: 1px solid #1f1f23; border-radius: 8px; padding: 8px 12px; flex: 1; text-align: center; }
 .todo-stat-num { color: #F4A93B; font-size: 18px; font-weight: 700; }
 .todo-stat-lbl { color: #4a4a52; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-
+ 
 .sched-block {
   background: #131316;
   border: 1px solid #1f1f23;
@@ -174,14 +174,14 @@ body { font-family: var(--font-sans); }
 .sched-block.current .sched-time { color: #6BCB77; }
 .sched-title { color: #fff; font-size: 13px; font-weight: 600; margin-bottom: 2px; }
 .sched-desc { color: #6a6a72; font-size: 12px; line-height: 1.4; }
-
+ 
 .log-input { width: 100%; background: #1a1a1e; border: 1px solid #2a2a30; border-radius: var(--border-radius-md); padding: 12px; color: #fff; font-size: 13px; outline: none; resize: vertical; min-height: 70px; font-family: var(--font-sans); margin-bottom: 10px; }
 .log-input:focus { border-color: #F4A93B; }
 .log-input::placeholder { color: #4a4a52; }
 .log-entry { background: #131316; border: 1px solid #1f1f23; border-radius: var(--border-radius-md); padding: 12px; margin-bottom: 8px; }
 .log-entry-time { color: #4a4a52; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: 600; }
 .log-entry-text { color: #c8c8cc; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
-
+ 
 .news-cat-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
 .news-cat-btn {
   background: #131316; border: 1px solid #1f1f23;
@@ -203,15 +203,44 @@ body { font-family: var(--font-sans); }
 .news-tag.trending { background: #2F1F14; color: #F4A93B; }
 .news-headline { color: #e4e4e8; font-size: 13px; font-weight: 600; line-height: 1.4; margin-bottom: 5px; }
 .news-meta { color: #4a4a52; font-size: 11px; }
-
+ 
 .ai-note { background: #131316; border: 1px solid #1f1f23; border-radius: var(--border-radius-md); padding: 14px; color: #6a6a72; font-size: 13px; line-height: 1.6; }
 .ai-note b { color: #F4A93B; }
-
+ 
+.ai-chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+.ai-chat-input { flex: 1; background: #1a1a1e; border: 1px solid #2a2a30; border-radius: var(--border-radius-md); padding: 10px 12px; color: #fff; font-size: 13px; outline: none; }
+.ai-chat-input:focus { border-color: #F4A93B; }
+.ai-chat-input::placeholder { color: #4a4a52; }
+.ai-send-btn { background: #F4A93B; border: none; border-radius: var(--border-radius-md); padding: 10px 14px; color: #16110a; cursor: pointer; font-size: 15px; font-weight: 700; }
+.ai-send-btn:hover { background: #FFC069; }
+.ai-msg { background: #131316; border: 1px solid #1f1f23; border-radius: var(--border-radius-md); padding: 11px 13px; margin-bottom: 8px; }
+.ai-msg.user { background: #1f1a10; border-color: #2a2210; }
+.ai-msg-who { font-size: 10px; color: #4a4a52; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.ai-msg.user .ai-msg-who { color: #F4A93B; }
+.ai-msg-text { color: #c8c8cc; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.ai-suggest-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.ai-suggest-btn { background: #131316; border: 1px solid #1f1f23; border-radius: 20px; padding: 6px 12px; color: #8a8a92; font-size: 11px; cursor: pointer; }
+.ai-suggest-btn:hover { border-color: #F4A93B; color: #F4A93B; }
+ 
+.ai-chat-input-row { display: flex; gap: 8px; margin-top: 12px; }
+.ai-chat-input { flex: 1; background: #1a1a1e; border: 1px solid #2a2a30; border-radius: var(--border-radius-md); padding: 10px 12px; color: #fff; font-size: 13px; outline: none; }
+.ai-chat-input:focus { border-color: #F4A93B; }
+.ai-chat-input::placeholder { color: #4a4a52; }
+.ai-send-btn { background: #F4A93B; border: none; border-radius: var(--border-radius-md); padding: 10px 14px; color: #16110a; cursor: pointer; font-size: 15px; }
+.ai-msg { background: #131316; border: 1px solid #1f1f23; border-radius: var(--border-radius-md); padding: 11px 13px; margin-bottom: 8px; }
+.ai-msg.user { background: #1f1a10; border-color: #2a2210; }
+.ai-msg-who { font-size: 10px; color: #4a4a52; margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.ai-msg.user .ai-msg-who { color: #F4A93B; }
+.ai-msg-text { color: #c8c8cc; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+.ai-suggest-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.ai-suggest-btn { background: #131316; border: 1px solid #1f1f23; border-radius: 20px; padding: 6px 12px; color: #8a8a92; font-size: 11px; cursor: pointer; }
+.ai-suggest-btn:hover { border-color: #F4A93B; color: #F4A93B; }
+ 
 .empty-state { color: #3a3a42; text-align: center; padding: 2rem; font-size: 13px; }
 </style>
 </head>
 <body>
-
+ 
 <div id="login-screen">
   <div class="login-logo" aria-hidden="true"><i class="ti ti-anchor" style="color:#16110a;font-size:26px;"></i></div>
   <div class="login-title">LUFFY'S SPACE</div>
@@ -222,7 +251,7 @@ body { font-family: var(--font-sans); }
   <div class="login-err" id="login-err"></div>
   <div class="login-demo">demo: luffy / puku</div>
 </div>
-
+ 
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
@@ -237,7 +266,7 @@ body { font-family: var(--font-sans); }
       <button class="logout-btn" onclick="logout()"><i class="ti ti-logout" aria-hidden="true"></i></button>
     </div>
   </div>
-
+ 
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="switchTab('today',this)"><i class="ti ti-sun" aria-hidden="true"></i> Today</button>
     <button class="nav-tab" onclick="switchTab('tasks',this)"><i class="ti ti-check" aria-hidden="true"></i> Tasks</button>
@@ -246,7 +275,7 @@ body { font-family: var(--font-sans); }
     <button class="nav-tab" onclick="switchTab('news',this)"><i class="ti ti-news" aria-hidden="true"></i> News</button>
     <button class="nav-tab" onclick="switchTab('ai',this)"><i class="ti ti-robot" aria-hidden="true"></i> AI</button>
   </div>
-
+ 
   <div id="panel-today" class="panel active">
     <div class="date-banner">
       <div>
@@ -289,7 +318,7 @@ body { font-family: var(--font-sans); }
     </div>
     <div id="todo-list-home"></div>
   </div>
-
+ 
   <div id="panel-tasks" class="panel">
     <div class="todo-stats">
       <div class="todo-stat"><div class="todo-stat-num" id="stat-total">0</div><div class="todo-stat-lbl">Total</div></div>
@@ -302,12 +331,12 @@ body { font-family: var(--font-sans); }
     </div>
     <div id="todo-list"></div>
   </div>
-
+ 
   <div id="panel-schedule" class="panel">
     <div class="section-label">daily base routine</div>
     <div id="schedule-list"></div>
   </div>
-
+ 
   <div id="panel-log" class="panel">
     <div class="section-label">new entry</div>
     <textarea class="log-input" id="log-input" placeholder="What happened, what's stuck, what to remember..."></textarea>
@@ -315,7 +344,7 @@ body { font-family: var(--font-sans); }
     <div class="section-label">recent entries</div>
     <div id="log-list"></div>
   </div>
-
+ 
   <div id="panel-news" class="panel">
     <div class="news-cat-row">
       <button class="news-cat-btn active" onclick="filterNews('all',this)">All</button>
@@ -326,21 +355,31 @@ body { font-family: var(--font-sans); }
     </div>
     <div id="news-list"></div>
   </div>
-
+ 
   <div id="panel-ai" class="panel">
-    <div class="section-label">ask claude</div>
-    <div class="ai-note">
-      The live Claude chat needs an API connection that only works inside the chat conversation, so it's not included in this downloaded version.<br><br>
-      To chat with Claude, head back to <b>claude.ai</b> or the Claude app on your phone — everything else here (tasks, schedule, log, news) works fully offline in this file.
+    <div class="section-label">your assistant</div>
+    <div class="ai-suggest-row">
+      <button class="ai-suggest-btn" onclick="askAI('What should I be doing right now?')">What now?</button>
+      <button class="ai-suggest-btn" onclick="askAI('What is next on my schedule?')">What\'s next?</button>
+      <button class="ai-suggest-btn" onclick="askAI('How many tasks do I have left?')">My tasks</button>
+      <button class="ai-suggest-btn" onclick="askAI('Am I free right now?')">Am I free?</button>
+      <button class="ai-suggest-btn" onclick="askAI('What time is it?')">Time?</button>
+      <button class="ai-suggest-btn" onclick="askAI('Show me my schedule for today')">Today's plan</button>
+    </div>
+    <div id="ai-messages"></div>
+    <div class="ai-chat-input-row">
+      <input class="ai-chat-input" id="ai-input" placeholder="Ask about your day, tasks, schedule..." onkeydown="if(event.key==='Enter')sendAI()" />
+      <button class="ai-send-btn" onclick="sendAI()"><i class="ti ti-send" aria-hidden="true"></i></button>
     </div>
   </div>
+ 
 </div>
-
+ 
 <script>
 const USERS = { luffy: 'puku' };
 let todos = JSON.parse(localStorage.getItem('ls_todos') || '[]');
 let logs = JSON.parse(localStorage.getItem('ls_logs') || '[]');
-
+ 
 const SCHEDULE = [
   { start: 8*60, end: 8*60+30, title: 'Wake up, water, shower', desc: 'Basic cleanup, no phone scrolling first thing.' },
   { start: 8*60+30, end: 9*60, title: 'Breakfast + write 3 priorities', desc: 'Main task, backup task, personal/gym task.' },
@@ -353,7 +392,7 @@ const SCHEDULE = [
   { start: 20*60, end: 22*60, title: 'Wind down', desc: 'Shower, journal, light entertainment.' },
   { start: 22*60, end: 24*60, title: 'Sleep', desc: 'Lights off, no screens.' },
 ];
-
+ 
 const NEWS = [
   { cat:'gaming', headline:'PS6 leak reveals major performance jump over PS5', time:'2h ago' },
   { cat:'gaming', headline:'GTA 6 release window reportedly confirmed for fall 2026', time:'4h ago' },
@@ -367,7 +406,7 @@ const NEWS = [
   { cat:'trending', headline:'Buffalo NY sets record for most snow in June — somehow', time:'1h ago' },
 ];
 let currentCat = 'all';
-
+ 
 function tryLogin() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
@@ -390,7 +429,7 @@ function logout() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
 }
-
+ 
 function startClock() {
   function tick() {
     const now = new Date();
@@ -407,7 +446,7 @@ function startClock() {
   }
   tick(); setInterval(tick, 1000);
 }
-
+ 
 function updateNow(now) {
   const mins = now.getHours()*60 + now.getMinutes();
   let current = SCHEDULE.find(b => mins >= b.start && mins < b.end);
@@ -421,14 +460,14 @@ function updateNow(now) {
   }
   document.getElementById('home-next').textContent = next.title + ' @ ' + fmtTime(next.start);
 }
-
+ 
 function fmtTime(mins) {
   let h = Math.floor(mins/60), m = mins%60;
   const ampm = h>=12 ? 'PM':'AM';
   let h12 = h%12; if(h12===0) h12=12;
   return h12+':'+m.toString().padStart(2,'0')+' '+ampm;
 }
-
+ 
 function switchTab(name, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -441,7 +480,7 @@ function switchTabByName(name) {
   const idx = panels.indexOf(name);
   if(idx>=0) switchTab(name, tabs[idx]);
 }
-
+ 
 function addTodo(src) {
   const inputId = src==='home' ? 'todo-input-home' : 'todo-input';
   const input = document.getElementById(inputId);
@@ -468,7 +507,7 @@ function renderTodos() {
   document.getElementById('stat-done').textContent = done;
   document.getElementById('stat-left').textContent = total-done;
   document.getElementById('home-tasks').textContent = (total-done) + (total-done===1?' task':' tasks');
-
+ 
   const html = !todos.length
     ? '<div class="empty-state">No tasks yet — add one above!</div>'
     : todos.map(t=>`
@@ -480,7 +519,7 @@ function renderTodos() {
   document.getElementById('todo-list').innerHTML = html;
   document.getElementById('todo-list-home').innerHTML = html;
 }
-
+ 
 function renderSchedule() {
   const now = new Date();
   const mins = now.getHours()*60 + now.getMinutes();
@@ -495,7 +534,7 @@ function renderSchedule() {
     </div>`;
   }).join('');
 }
-
+ 
 function addLog() {
   const input = document.getElementById('log-input');
   const text = input.value.trim();
@@ -510,7 +549,7 @@ function renderLogs() {
     ? '<div class="empty-state">No entries yet. Jot down what happened today.</div>'
     : logs.map(l=>`<div class="log-entry"><div class="log-entry-time">${l.time}</div><div class="log-entry-text">${l.text}</div></div>`).join('');
 }
-
+ 
 function filterNews(cat, btn) {
   currentCat = cat;
   document.querySelectorAll('.news-cat-btn').forEach(b => b.classList.remove('active'));
@@ -527,6 +566,114 @@ function renderNews() {
       <div class="news-meta"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${n.time}</div>
     </div>`).join('');
 }
+ 
+/* ---------- Built-in Assistant (no API needed) ---------- */
+let aiHistory = [];
+ 
+function renderAIMessages() {
+  const el = document.getElementById('ai-messages');
+  if(!aiHistory.length) {
+    el.innerHTML = '<div class="empty-state">Tap a quick question above, or type your own — I know your schedule, tasks, and the time.</div>';
+    return;
+  }
+  el.innerHTML = aiHistory.map(m=>`
+    <div class="ai-msg ${m.role==='user'?'user':''}">
+      <div class="ai-msg-who">${m.role==='user'?'You':'Assistant'}</div>
+      <div class="ai-msg-text">${m.content.replace(/\n/g,'<br>')}</div>
+    </div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+ 
+function askAI(text) {
+  document.getElementById('ai-input').value = text;
+  sendAI();
+}
+ 
+function sendAI() {
+  const input = document.getElementById('ai-input');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  aiHistory.push({ role:'user', content: text });
+  const reply = generateAIReply(text);
+  aiHistory.push({ role:'assistant', content: reply });
+  renderAIMessages();
+}
+ 
+function generateAIReply(rawText) {
+  const text = rawText.toLowerCase();
+  const now = new Date();
+  const mins = now.getHours()*60 + now.getMinutes();
+  const current = SCHEDULE.find(b => mins >= b.start && mins < b.end);
+  const next = SCHEDULE.find(b => b.start > mins) || SCHEDULE[0];
+  const total = todos.length;
+  const done = todos.filter(t=>t.done).length;
+  const left = total - done;
+ 
+  // Greetings
+  if (/^(hi|hey|hello|yo|sup)\b/.test(text)) {
+    return "Hey! I can tell you what's on your schedule, what's next, or how your tasks are looking. Try asking 'what should I be doing right now?'";
+  }
+ 
+  // Current time
+  if (text.includes('what time') || text.includes('current time')) {
+    return "It's currently " + fmtTime(mins) + ".";
+  }
+ 
+  // What should I be doing / what now
+  if (text.includes('should i be doing') || text.includes('what now') || text.includes('right now') && text.includes('doing')) {
+    if (current) {
+      return "Right now (" + fmtTime(current.start) + " – " + fmtTime(current.end) + ") you should be on: " + current.title + ".\n" + current.desc;
+    }
+    return "Nothing is scheduled for this exact moment — looks like free time! Your next block is \"" + next.title + "\" at " + fmtTime(next.start) + ".";
+  }
+ 
+  // Am I free
+  if (text.includes('am i free') || text.includes('free right now') || text.includes('free time')) {
+    if (current) {
+      return "Not quite — you're in \"" + current.title + "\" until " + fmtTime(current.end) + ".";
+    }
+    return "Yep, you're free right now! Next up is \"" + next.title + "\" at " + fmtTime(next.start) + ".";
+  }
+ 
+  // What's next
+  if (text.includes('next') || text.includes('up next') || text.includes('coming up')) {
+    return "Next up: \"" + next.title + "\" at " + fmtTime(next.start) + " – " + fmtTime(next.end) + ".\n" + next.desc;
+  }
+ 
+  // Tasks
+  if (text.includes('task')) {
+    if (total === 0) return "You don't have any tasks added yet. Add some in the Tasks tab!";
+    if (left === 0) return "All " + total + " task(s) are done! Nice work. 🎉";
+    return "You have " + left + " task(s) left out of " + total + " total. Here they are:\n" +
+      todos.filter(t=>!t.done).map(t=>"• " + t.text).join("\n");
+  }
+ 
+  // Full schedule
+  if (text.includes('schedule') || text.includes('today\'s plan') || text.includes('routine')) {
+    return "Here's your daily routine:\n" + SCHEDULE.map(b =>
+      fmtTime(b.start) + " - " + fmtTime(b.end) + ": " + b.title
+    ).join("\n");
+  }
+ 
+  // Log related
+  if (text.includes('log') || text.includes('journal') || text.includes('notes')) {
+    if (!logs.length) return "You haven't written any log entries yet. Head to the Log tab to jot down what's on your mind.";
+    return "Your most recent log entry (" + logs[0].time + "):\n" + logs[0].text;
+  }
+ 
+  // Motivation / how am i doing
+  if (text.includes('motivat') || text.includes('how am i doing') || text.includes('pep talk')) {
+    if (total > 0 && left === 0) return "You've completed everything on your list today. That's a great day. 🙌";
+    if (left > 0) return "You've got " + left + " task(s) left — pick one and just start, momentum builds from there. You've got this 💪";
+    return "Every day is a fresh start. Add a task or two and tackle them one at a time!";
+  }
+ 
+  // Fallback
+  return "I can help with your schedule, tasks, current time, or log — try one of the quick buttons above, or ask things like \"what's next\" or \"how many tasks do I have left\".";
+}
+ 
+renderAIMessages();
 </script>
 </body>
-</html>
+</html
