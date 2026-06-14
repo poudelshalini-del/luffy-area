@@ -4,7 +4,6 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Luffy's Space</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.47.0/iconfont/tabler-icons.min.css" />
 <style>
 :root {
   --border-radius-md: 10px;
@@ -40,6 +39,11 @@ body { font-family: var(--font-sans); }
 .login-btn:hover { background: #FFC069; }
 .login-err { color: #ED6F70; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
 .login-demo { color: #3a3a40; font-size: 11px; margin-top: 1.5rem; }
+ 
+.faceid-btn { width: 100%; max-width: 320px; background: #1a1a1e; border: 1px solid #2a2a30; border-radius: var(--border-radius-md); padding: 13px; color: #F4A93B; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.faceid-btn:hover { border-color: #F4A93B; }
+.login-divider { display: flex; align-items: center; gap: 10px; color: #3a3a40; font-size: 11px; width: 100%; max-width: 320px; margin: 4px 0 14px; text-transform: uppercase; letter-spacing: 1px; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: #2a2a30; }
  
 #app { display: none; background: #0d0d0f; min-height: 100vh; }
  
@@ -242,13 +246,20 @@ body { font-family: var(--font-sans); }
 <body>
  
 <div id="login-screen">
-  <div class="login-logo" aria-hidden="true"><i class="ti ti-anchor" style="color:#16110a;font-size:26px;"></i></div>
+  <div class="login-logo" aria-hidden="true"><span style="color:#16110a;font-size:26px;" aria-hidden="true">⚓</span></div>
   <div class="login-title">LUFFY'S SPACE</div>
   <div class="login-sub">Daily routine • tasks • log • news</div>
+ 
+  <button class="faceid-btn" id="faceid-login-btn" style="display:none;" onclick="unlockFaceID()">
+    <span style="font-size:18px;" aria-hidden="true">👁️</span> Unlock with Face ID
+  </button>
+  <div class="login-divider" id="login-divider" style="display:none;">or use password</div>
+ 
   <input class="login-field" id="login-user" type="text" placeholder="Username" autocomplete="username" />
   <input class="login-field" id="login-pass" type="password" placeholder="Password" autocomplete="current-password" />
-  <button class="login-btn" onclick="tryLogin()">Sign In <i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+  <button class="login-btn" onclick="tryLogin()">Sign In <span aria-hidden="true">➜</span></button>
   <div class="login-err" id="login-err"></div>
+  <div class="login-demo" id="faceid-setup-link" style="display:none;cursor:pointer;text-decoration:underline;" onclick="setupFaceID()">Enable Face ID for next time</div>
   <div class="login-demo">demo: luffy / puku</div>
 </div>
  
@@ -263,17 +274,17 @@ body { font-family: var(--font-sans); }
     </div>
     <div class="topbar-right">
       <div class="clock-display" id="clock">--:--</div>
-      <button class="logout-btn" onclick="logout()"><i class="ti ti-logout" aria-hidden="true"></i></button>
+      <button class="logout-btn" onclick="logout()"><span aria-hidden="true">🚪</span></button>
     </div>
   </div>
  
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab('today',this)"><i class="ti ti-sun" aria-hidden="true"></i> Today</button>
-    <button class="nav-tab" onclick="switchTab('tasks',this)"><i class="ti ti-check" aria-hidden="true"></i> Tasks</button>
-    <button class="nav-tab" onclick="switchTab('schedule',this)"><i class="ti ti-clock" aria-hidden="true"></i> Schedule</button>
-    <button class="nav-tab" onclick="switchTab('log',this)"><i class="ti ti-notebook" aria-hidden="true"></i> Log</button>
-    <button class="nav-tab" onclick="switchTab('news',this)"><i class="ti ti-news" aria-hidden="true"></i> News</button>
-    <button class="nav-tab" onclick="switchTab('ai',this)"><i class="ti ti-robot" aria-hidden="true"></i> AI</button>
+    <button class="nav-tab active" onclick="switchTab('today',this)"><span aria-hidden="true">☀️</span> Today</button>
+    <button class="nav-tab" onclick="switchTab('tasks',this)"><span aria-hidden="true">✅</span> Tasks</button>
+    <button class="nav-tab" onclick="switchTab('schedule',this)"><span aria-hidden="true">🕐</span> Schedule</button>
+    <button class="nav-tab" onclick="switchTab('log',this)"><span aria-hidden="true">📓</span> Log</button>
+    <button class="nav-tab" onclick="switchTab('news',this)"><span aria-hidden="true">📰</span> News</button>
+    <button class="nav-tab" onclick="switchTab('ai',this)"><span aria-hidden="true">🤖</span> AI</button>
   </div>
  
   <div id="panel-today" class="panel active">
@@ -291,22 +302,22 @@ body { font-family: var(--font-sans); }
     </div>
     <div class="quick-grid">
       <div class="quick-card" onclick="switchTabByName('tasks')">
-        <i class="ti ti-checklist" style="color:#F4A93B;" aria-hidden="true"></i>
+        <span style="color:#F4A93B;" aria-hidden="true">📋</span>
         <div class="quick-card-label">Tasks left</div>
         <div class="quick-card-val" id="home-tasks">0</div>
       </div>
       <div class="quick-card" onclick="switchTabByName('schedule')">
-        <i class="ti ti-clock" style="color:#6BCB77;" aria-hidden="true"></i>
+        <span style="color:#6BCB77;" aria-hidden="true">🕐</span>
         <div class="quick-card-label">Up next</div>
         <div class="quick-card-val" style="font-size:12px;" id="home-next">...</div>
       </div>
       <div class="quick-card" onclick="switchTabByName('news')">
-        <i class="ti ti-news" style="color:#6FB8ED;" aria-hidden="true"></i>
+        <span style="color:#6FB8ED;" aria-hidden="true">📰</span>
         <div class="quick-card-label">Top story</div>
         <div class="quick-card-val" style="font-size:11px;line-height:1.3;" id="home-news">...</div>
       </div>
       <div class="quick-card" onclick="switchTabByName('ai')">
-        <i class="ti ti-robot" style="color:#B0A4FF;" aria-hidden="true"></i>
+        <span style="color:#B0A4FF;" aria-hidden="true">🤖</span>
         <div class="quick-card-label">Ask Claude</div>
         <div class="quick-card-val" style="font-size:12px;">Open tab</div>
       </div>
@@ -314,7 +325,7 @@ body { font-family: var(--font-sans); }
     <div class="section-label">today's tasks</div>
     <div class="todo-input-row">
       <input class="todo-input" id="todo-input-home" placeholder="Add a task for today..." onkeydown="if(event.key==='Enter')addTodo('home')" />
-      <button class="add-btn" onclick="addTodo('home')"><i class="ti ti-plus" aria-hidden="true"></i></button>
+      <button class="add-btn" onclick="addTodo('home')"><span aria-hidden="true">➕</span></button>
     </div>
     <div id="todo-list-home"></div>
   </div>
@@ -327,7 +338,7 @@ body { font-family: var(--font-sans); }
     </div>
     <div class="todo-input-row">
       <input class="todo-input" id="todo-input" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo('main')" />
-      <button class="add-btn" onclick="addTodo('main')"><i class="ti ti-plus" aria-hidden="true"></i></button>
+      <button class="add-btn" onclick="addTodo('main')"><span aria-hidden="true">➕</span></button>
     </div>
     <div id="todo-list"></div>
   </div>
@@ -340,7 +351,7 @@ body { font-family: var(--font-sans); }
   <div id="panel-log" class="panel">
     <div class="section-label">new entry</div>
     <textarea class="log-input" id="log-input" placeholder="What happened, what's stuck, what to remember..."></textarea>
-    <button class="add-btn" style="width:100%;margin-bottom:16px;" onclick="addLog()"><i class="ti ti-plus" aria-hidden="true"></i> Save entry</button>
+    <button class="add-btn" style="width:100%;margin-bottom:16px;" onclick="addLog()"><span aria-hidden="true">➕</span> Save entry</button>
     <div class="section-label">recent entries</div>
     <div id="log-list"></div>
   </div>
@@ -352,12 +363,14 @@ body { font-family: var(--font-sans); }
       <button class="news-cat-btn" onclick="filterNews('ai',this)">AI</button>
       <button class="news-cat-btn" onclick="filterNews('tech',this)">Tech</button>
       <button class="news-cat-btn" onclick="filterNews('trending',this)">Trending</button>
+      <button class="news-cat-btn" onclick="fetchLiveNews()" style="margin-left:auto;">🔄 Refresh</button>
     </div>
+    <div id="news-status" style="color:#4a4a52;font-size:11px;margin-bottom:10px;"></div>
     <div id="news-list"></div>
   </div>
  
   <div id="panel-ai" class="panel">
-    <div class="section-label">your assistant</div>
+    <div class="section-label">jarvis</div>
     <div class="ai-suggest-row">
       <button class="ai-suggest-btn" onclick="askAI('What should I be doing right now?')">What now?</button>
       <button class="ai-suggest-btn" onclick="askAI('What is next on my schedule?')">What\'s next?</button>
@@ -368,9 +381,11 @@ body { font-family: var(--font-sans); }
     </div>
     <div id="ai-messages"></div>
     <div class="ai-chat-input-row">
-      <input class="ai-chat-input" id="ai-input" placeholder="Ask about your day, tasks, schedule..." onkeydown="if(event.key==='Enter')sendAI()" />
-      <button class="ai-send-btn" onclick="sendAI()"><i class="ti ti-send" aria-hidden="true"></i></button>
+      <input class="ai-chat-input" id="ai-input" placeholder="Type, or say 'Jarvis' to talk..." onkeydown="if(event.key==='Enter')sendAI()" />
+      <button class="ai-send-btn" id="mic-btn" onclick="toggleMic()" title="Voice input"><span aria-hidden="true">🎤</span></button>
+      <button class="ai-send-btn" onclick="sendAI()"><span aria-hidden="true">📤</span></button>
     </div>
+    <div id="mic-status" style="color:#4a4a52;font-size:11px;margin-top:8px;text-align:center;"></div>
   </div>
  
 </div>
@@ -393,7 +408,7 @@ const SCHEDULE = [
   { start: 22*60, end: 24*60, title: 'Sleep', desc: 'Lights off, no screens.' },
 ];
  
-const NEWS = [
+const FALLBACK_NEWS = [
   { cat:'gaming', headline:'PS6 leak reveals major performance jump over PS5', time:'2h ago' },
   { cat:'gaming', headline:'GTA 6 release window reportedly confirmed for fall 2026', time:'4h ago' },
   { cat:'gaming', headline:'New Xbox handheld spotted in FCC filings', time:'6h ago' },
@@ -405,19 +420,29 @@ const NEWS = [
   { cat:'trending', headline:'Viral: Guy builds working Nintendo Switch from scratch', time:'30m ago' },
   { cat:'trending', headline:'Buffalo NY sets record for most snow in June — somehow', time:'1h ago' },
 ];
+let NEWS = FALLBACK_NEWS;
 let currentCat = 'all';
+let newsLoading = false;
+ 
+function enterApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  startClock();
+  renderTodos();
+  renderSchedule();
+  renderLogs();
+  renderNews();
+  fetchLiveNews();
+  if (!window._newsInterval) {
+    window._newsInterval = setInterval(fetchLiveNews, 5 * 60 * 1000); // refresh every 5 min
+  }
+}
  
 function tryLogin() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
   if (USERS[u] && USERS[u] === p) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    startClock();
-    renderTodos();
-    renderSchedule();
-    renderLogs();
-    renderNews();
+    enterApp();
   } else {
     document.getElementById('login-err').textContent = 'Wrong username or password.';
     setTimeout(()=>document.getElementById('login-err').textContent='', 2000);
@@ -429,6 +454,77 @@ function logout() {
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
 }
+ 
+/* ---------- Face ID (WebAuthn, scoped to this site only) ---------- */
+function b64encode(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)));
+}
+function b64decode(str) {
+  return Uint8Array.from(atob(str), c => c.charCodeAt(0));
+}
+ 
+async function setupFaceID() {
+  if (!window.PublicKeyCredential) {
+    alert('Face ID / Touch ID is not supported on this browser.');
+    return;
+  }
+  try {
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    const userId = new Uint8Array(16);
+    crypto.getRandomValues(userId);
+    const credential = await navigator.credentials.create({
+      publicKey: {
+        challenge,
+        rp: { name: "Luffy's Space" },
+        user: { id: userId, name: 'luffy', displayName: 'Luffy' },
+        pubKeyCredParams: [{ alg: -7, type: 'public-key' }, { alg: -257, type: 'public-key' }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
+        timeout: 60000,
+        attestation: 'none'
+      }
+    });
+    localStorage.setItem('ls_faceid_cred', b64encode(credential.rawId));
+    document.getElementById('faceid-setup-link').style.display = 'none';
+    document.getElementById('faceid-login-btn').style.display = 'flex';
+    document.getElementById('login-divider').style.display = 'flex';
+    alert('Face ID enabled! Next time you can unlock with just your face/fingerprint.');
+  } catch (e) {
+    alert('Could not set up Face ID: ' + e.message);
+  }
+}
+ 
+async function unlockFaceID() {
+  try {
+    const credId = localStorage.getItem('ls_faceid_cred');
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    await navigator.credentials.get({
+      publicKey: {
+        challenge,
+        allowCredentials: [{ id: b64decode(credId), type: 'public-key' }],
+        userVerification: 'required',
+        timeout: 60000
+      }
+    });
+    enterApp();
+  } catch (e) {
+    document.getElementById('login-err').textContent = 'Face ID failed or cancelled.';
+    setTimeout(()=>document.getElementById('login-err').textContent='', 2000);
+  }
+}
+ 
+// On load: show Face ID button if already set up on this device
+(function initFaceID() {
+  const hasCred = localStorage.getItem('ls_faceid_cred');
+  const hasSupport = !!window.PublicKeyCredential;
+  if (hasCred && hasSupport) {
+    document.getElementById('faceid-login-btn').style.display = 'flex';
+    document.getElementById('login-divider').style.display = 'flex';
+  } else if (hasSupport) {
+    document.getElementById('faceid-setup-link').style.display = 'block';
+  }
+})();
  
 function startClock() {
   function tick() {
@@ -514,7 +610,7 @@ function renderTodos() {
       <div class="todo-item">
         <div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${t.id})"></div>
         <span class="todo-text ${t.done?'done':''}">${t.text}</span>
-        <button class="todo-del" onclick="deleteTodo(${t.id})"><i class="ti ti-trash" aria-hidden="true"></i></button>
+        <button class="todo-del" onclick="deleteTodo(${t.id})"><span aria-hidden="true">🗑️</span></button>
       </div>`).join('');
   document.getElementById('todo-list').innerHTML = html;
   document.getElementById('todo-list-home').innerHTML = html;
@@ -559,26 +655,106 @@ function filterNews(cat, btn) {
 function renderNews() {
   const items = currentCat==='all' ? NEWS : NEWS.filter(n=>n.cat===currentCat);
   document.getElementById('home-news').textContent = NEWS[0].headline;
-  document.getElementById('news-list').innerHTML = items.map(n=>`
+  document.getElementById('news-list').innerHTML = items.length
+    ? items.map(n=>`
     <div class="news-card">
       <div class="news-tag ${n.cat}">${n.cat.toUpperCase()}</div>
       <div class="news-headline">${n.headline}</div>
-      <div class="news-meta"><i class="ti ti-clock" style="font-size:10px" aria-hidden="true"></i> ${n.time}</div>
-    </div>`).join('');
+      <div class="news-meta"><span style="font-size:10px" aria-hidden="true">🕐</span> ${n.time}</div>
+    </div>`).join('')
+    : '<div class="empty-state">No stories in this category right now.</div>';
 }
  
-/* ---------- Built-in Assistant (no API needed) ---------- */
+/* ---------- Live news (RSS via rss2json, free, CORS-friendly) ---------- */
+const NEWS_SOURCES = {
+  gaming: 'https://hn.algolia.com/api/v1/search_by_date?query=gaming&tags=story&hitsPerPage=20',
+  ai: 'https://hn.algolia.com/api/v1/search_by_date?query=AI&tags=story&hitsPerPage=20',
+  tech: 'https://hn.algolia.com/api/v1/search_by_date?query=tech&tags=story&hitsPerPage=20',
+  trending: 'https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=20',
+};
+ 
+function timeAgo(unixSeconds) {
+  const diffMs = Date.now() - unixSeconds * 1000;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+ 
+/* ---------- Kid-safe filter (removes/masks profanity from headlines) ---------- */
+const BAD_WORDS = [
+  'fuck','shit','bitch','asshole','bastard','dick','piss','cunt','crap',
+  'damn','douche','slut','whore','fag','retard','cock','pussy','nigger',
+  'nigga','wtf','stfu','fck','fuk','motherfucker','goddamn'
+];
+const BAD_WORDS_RE = new RegExp('\\b(' + BAD_WORDS.join('|') + ')\\b', 'i');
+ 
+function isHeadlineSafe(title) {
+  return !BAD_WORDS_RE.test(title);
+}
+ 
+async function fetchLiveNews() {
+  if (newsLoading) return;
+  newsLoading = true;
+  const statusEl = document.getElementById('news-status');
+  if (statusEl) statusEl.textContent = 'Loading live news...';
+ 
+  try {
+    const results = await Promise.allSettled(
+      Object.entries(NEWS_SOURCES).map(async ([cat, apiUrl]) => {
+        const res = await fetch(apiUrl);
+        if (!res.ok) throw new Error('Bad response');
+        const data = await res.json();
+        return data.hits
+          .filter(h => h.title && isHeadlineSafe(h.title))
+          .slice(0, 5)
+          .map(h => ({
+            cat,
+            headline: h.title,
+            time: timeAgo(h.created_at_i)
+          }));
+      })
+    );
+ 
+    let combined = [];
+    let anySuccess = false;
+    results.forEach(r => {
+      if (r.status === 'fulfilled') {
+        combined = combined.concat(r.value);
+        anySuccess = true;
+      }
+    });
+ 
+    if (anySuccess && combined.length) {
+      NEWS = combined;
+      if (statusEl) statusEl.textContent = 'Updated ' + new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+    } else {
+      NEWS = FALLBACK_NEWS;
+      if (statusEl) statusEl.textContent = "Couldn't load live news (offline or blocked) — showing sample stories.";
+    }
+  } catch (e) {
+    NEWS = FALLBACK_NEWS;
+    if (statusEl) statusEl.textContent = "Couldn't load live news — showing sample stories.";
+  }
+ 
+  newsLoading = false;
+  renderNews();
+}
+ 
+/* ---------- Jarvis (no API needed) ---------- */
 let aiHistory = [];
  
 function renderAIMessages() {
   const el = document.getElementById('ai-messages');
   if(!aiHistory.length) {
-    el.innerHTML = '<div class="empty-state">Tap a quick question above, or type your own — I know your schedule, tasks, and the time.</div>';
+    el.innerHTML = '<div class="empty-state">Tap a quick question above, type, or tap the mic and say "Jarvis" — I know your schedule, tasks, and the time.</div>';
     return;
   }
   el.innerHTML = aiHistory.map(m=>`
     <div class="ai-msg ${m.role==='user'?'user':''}">
-      <div class="ai-msg-who">${m.role==='user'?'You':'Assistant'}</div>
+      <div class="ai-msg-who">${m.role==='user'?'You':'Jarvis'}</div>
       <div class="ai-msg-text">${m.content.replace(/\n/g,'<br>')}</div>
     </div>`).join('');
   el.scrollTop = el.scrollHeight;
@@ -598,10 +774,24 @@ function sendAI() {
   const reply = generateAIReply(text);
   aiHistory.push({ role:'assistant', content: reply });
   renderAIMessages();
+  speakText(reply);
+}
+ 
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1;
+  utter.pitch = 0.9;
+  window.speechSynthesis.speak(utter);
 }
  
 function generateAIReply(rawText) {
-  const text = rawText.toLowerCase();
+  let text = rawText.toLowerCase();
+  // Strip wake word "jarvis" from the start of the sentence
+  text = text.replace(/^\s*(hey |ok |okay )?jarvis[,\s]*/i, '').trim();
+  if (!text) text = 'hello';
+ 
   const now = new Date();
   const mins = now.getHours()*60 + now.getMinutes();
   const current = SCHEDULE.find(b => mins >= b.start && mins < b.end);
@@ -612,7 +802,7 @@ function generateAIReply(rawText) {
  
   // Greetings
   if (/^(hi|hey|hello|yo|sup)\b/.test(text)) {
-    return "Hey! I can tell you what's on your schedule, what's next, or how your tasks are looking. Try asking 'what should I be doing right now?'";
+    return "At your service. I can tell you what's on your schedule, what's next, or how your tasks are looking. Try asking 'what should I be doing right now?'";
   }
  
   // Current time
@@ -674,6 +864,69 @@ function generateAIReply(rawText) {
 }
  
 renderAIMessages();
+ 
+/* ---------- Voice input (Web Speech API) ---------- */
+const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognizer = null;
+let listening = false;
+ 
+function toggleMic() {
+  if (!SpeechRecognitionAPI) {
+    document.getElementById('mic-status').innerHTML = 'Built-in voice button isn\'t supported by Safari. But you can still talk to Jarvis hands-free: tap the text box below, then tap the 🎤 on your <b>keyboard</b> (bottom right of keyboard) to use iPhone\'s dictation — say "Jarvis" + your question, then tap send.';
+    document.getElementById('ai-input').focus();
+    return;
+  }
+  if (listening) {
+    recognizer.stop();
+    return;
+  }
+  recognizer = new SpeechRecognitionAPI();
+  recognizer.lang = 'en-US';
+  recognizer.continuous = false;
+  recognizer.interimResults = true;
+ 
+  recognizer.onstart = () => {
+    listening = true;
+    document.getElementById('mic-btn').style.background = '#ED6F70';
+    document.getElementById('mic-status').textContent = 'Listening... say "Jarvis" then your question.';
+  };
+ 
+  recognizer.onresult = (event) => {
+    let transcript = '';
+    for (let i = 0; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('ai-input').value = transcript;
+    const last = event.results[event.results.length - 1];
+    if (last.isFinal) {
+      if (/jarvis/i.test(transcript)) {
+        sendAI();
+      } else {
+        document.getElementById('mic-status').textContent = 'Didn\'t hear "Jarvis" — tap mic and try again.';
+      }
+    }
+  };
+ 
+  recognizer.onerror = (event) => {
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      document.getElementById('mic-status').innerHTML = 'Microphone access is blocked. On iPhone: Settings → Safari → Microphone → Allow. Or tap "aA" in the address bar → Website Settings → Microphone → Allow.';
+    } else if (event.error === 'no-speech') {
+      document.getElementById('mic-status').textContent = "Didn't catch that — tap the mic and try again.";
+    } else {
+      document.getElementById('mic-status').textContent = 'Mic error: ' + event.error;
+    }
+  };
+ 
+  recognizer.onend = () => {
+    listening = false;
+    document.getElementById('mic-btn').style.background = '';
+    if (!/jarvis/i.test(document.getElementById('ai-input').value)) {
+      setTimeout(()=>{ document.getElementById('mic-status').textContent=''; }, 2500);
+    }
+  };
+ 
+  recognizer.start();
+}
 </script>
 </body>
-</html
+</html>
