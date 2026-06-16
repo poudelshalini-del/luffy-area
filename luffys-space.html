@@ -49,12 +49,17 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); tran
 .login-title { color:var(--text); font-size:24px; font-weight:700; margin-bottom:4px; letter-spacing:1px; }
 .login-sub { color:var(--text3); font-size:12px; margin-bottom:2rem; }
 .login-field { width:100%; max-width:320px; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--r-md); padding:13px 16px; color:var(--text); font-size:14px; margin-bottom:10px; outline:none; transition:border var(--transition); }
+#login-pass { color:#F4A93B; letter-spacing:4px; font-size:18px; font-weight:700; }
 .login-field:focus { border-color:var(--accent); }
 .login-field::placeholder { color:var(--text3); }
 .login-btn { width:100%; max-width:320px; background:var(--accent); border:none; border-radius:var(--r-md); padding:14px; color:#16110a; font-size:15px; font-weight:700; cursor:pointer; margin-top:6px; transition:background var(--transition), transform 0.1s; }
 .login-btn:active { transform:scale(0.98); background:var(--accent-dark); }
 .login-err { color:var(--red); font-size:12px; margin-top:8px; text-align:center; min-height:18px; }
 .login-hint { color:var(--text3); font-size:11px; margin-top:1.5rem; }
+.faceid-btn { width:100%; max-width:320px; background:var(--bg3); border:1px solid var(--border2); border-radius:var(--r-md); padding:13px 16px; color:var(--accent); font-size:15px; font-weight:700; cursor:pointer; margin-bottom:10px; display:flex; align-items:center; justify-content:center; gap:8px; transition:all var(--transition); }
+.faceid-btn:hover { border-color:var(--accent); }
+.login-divider { display:flex; align-items:center; gap:10px; color:var(--text3); font-size:11px; width:100%; max-width:320px; margin:4px 0 10px; text-transform:uppercase; letter-spacing:1px; }
+.login-divider::before,.login-divider::after { content:''; flex:1; height:1px; background:var(--border2); }
  
 /* ── LAYOUT ── */
 #app { display:none; min-height:100vh; background:var(--bg); }
@@ -234,11 +239,13 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
   <div class="login-glow">⚓</div>
   <div class="login-title">LUFFY'S SPACE</div>
   <div class="login-sub">Your personal command center</div>
-  <input class="login-field" id="login-user" type="text" placeholder="Username" autocomplete="username"/>
-  <input class="login-field" id="login-pass" type="password" placeholder="Password" autocomplete="current-password"/>
+  <button class="faceid-btn" id="faceid-btn" style="display:none;" onclick="unlockFaceID()">👁️ Unlock with Face ID</button>
+  <div class="login-divider" id="login-divider" style="display:none;">or</div>
+  <input class="login-field" id="login-user" type="text"/>
+  <input class="login-field" id="login-pass" type="password"/>
   <button class="login-btn" onclick="tryLogin()">Sign In →</button>
   <div class="login-err" id="login-err"></div>
-  <div class="login-hint">luffy / puku</div>
+  <div class="login-setup" id="faceid-setup" style="display:none;cursor:pointer;color:var(--text3);font-size:11px;margin-top:1rem;text-decoration:underline;" onclick="setupFaceID()">Enable Face ID for next time</div>
 </div>
  
 <!-- APP -->
@@ -582,19 +589,11 @@ function tryLogin() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
   if (USERS[u] && USERS[u] === p) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    applySettings();
-    startClock();
-    renderTasks();
-    renderSchedule();
-    renderLogs();
-    renderNews();
-    renderScheduleEditor();
-    renderJarvisMessages();
-    fetchLiveNews(false);
-    startNewsTimer();
-    pickJarvisVoice();
+    enterApp();
+    // Show "Enable Face ID" link after successful password login if not set up yet
+    if (!localStorage.getItem('ls_faceid_cred') && window.PublicKeyCredential) {
+      setTimeout(()=>{ document.getElementById('faceid-setup').style.display='block'; }, 500);
+    }
   } else {
     document.getElementById('login-err').textContent = 'Wrong username or password.';
     setTimeout(()=>document.getElementById('login-err').textContent='', 2000);
@@ -1012,6 +1011,76 @@ function toggleMic() {
   };
   recognizer.start();
 }
+ 
+// ── FACE ID (WebAuthn) ──
+function b64enc(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function b64dec(str) { return Uint8Array.from(atob(str), c=>c.charCodeAt(0)); }
+ 
+async function setupFaceID() {
+  if (!window.PublicKeyCredential) { alert('Face ID not supported on this browser.'); return; }
+  try {
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    const userId = new Uint8Array(16);
+    crypto.getRandomValues(userId);
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge, rp:{ name:"Luffy's Space" },
+      user:{ id:userId, name:'luffy', displayName:'Luffy' },
+      pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+      authenticatorSelection:{ authenticatorAttachment:'platform', userVerification:'required' },
+      timeout:60000, attestation:'none'
+    }});
+    localStorage.setItem('ls_faceid_cred', b64enc(cred.rawId));
+    document.getElementById('faceid-btn').style.display='flex';
+    document.getElementById('login-divider').style.display='flex';
+    document.getElementById('faceid-setup').style.display='none';
+    alert('Face ID enabled! Tap "Unlock with Face ID" next time. ✅');
+  } catch(e) { alert('Face ID setup failed: '+e.message); }
+}
+ 
+async function unlockFaceID() {
+  try {
+    const credId = localStorage.getItem('ls_faceid_cred');
+    const challenge = new Uint8Array(32);
+    crypto.getRandomValues(challenge);
+    await navigator.credentials.get({ publicKey: {
+      challenge,
+      allowCredentials:[{ id:b64dec(credId), type:'public-key' }],
+      userVerification:'required', timeout:60000
+    }});
+    enterApp();
+  } catch(e) {
+    document.getElementById('login-err').textContent='Face ID failed — try password instead.';
+    setTimeout(()=>document.getElementById('login-err').textContent='', 2500);
+  }
+}
+ 
+function enterApp() {
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  applySettings();
+  startClock();
+  renderTasks();
+  renderSchedule();
+  renderLogs();
+  renderNews();
+  renderScheduleEditor();
+  renderJarvisMessages();
+  fetchLiveNews(false);
+  startNewsTimer();
+  pickJarvisVoice();
+}
+ 
+(function initFaceID() {
+  const has = localStorage.getItem('ls_faceid_cred');
+  const sup = !!window.PublicKeyCredential;
+  if (has && sup) {
+    document.getElementById('faceid-btn').style.display='flex';
+    document.getElementById('login-divider').style.display='flex';
+  } else if (sup) {
+    document.getElementById('faceid-setup').style.display='block';
+  }
+})();
  
 // ── INIT ──
 applySettings();
