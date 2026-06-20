@@ -229,6 +229,11 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
  
 /* ── EMPTY + UTILS ── */
 .empty { color:var(--text3); text-align:center; padding:2.5rem 1rem; font-size:13px; }
+.badge-pill { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:8px 12px; display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text2); transition:all var(--transition); }
+.badge-pill.unlocked { border-color:var(--accent); background:linear-gradient(135deg,#1f1a10,var(--bg2)); color:var(--text); }
+body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff); }
+.badge-pill .badge-icon { font-size:16px; }
+.badge-pill.locked { opacity:0.4; }
 .divider { height:1px; background:var(--border); margin:12px 0; }
 </style>
 </head>
@@ -238,8 +243,8 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
 <canvas id="confetti-canvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;display:none;"></canvas>
  
 <div id="login-screen">
-  <div class="login-glow">⚓</div>
-  <div class="login-title">LUFFY'S SPACE</div>
+  <div class="login-glow" id="login-glow-icon">⚓</div>
+  <div class="login-title" id="login-title-text">LUFFY'S SPACE</div>
   <div class="login-sub">Your personal command center</div>
   <button class="faceid-btn" id="faceid-btn" style="display:none;" onclick="unlockFaceID()">👁️ Unlock with Face ID</button>
   <div class="login-divider" id="login-divider" style="display:none;">or</div>
@@ -289,6 +294,11 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
         <div id="streak-badge" style="color:var(--accent);font-size:12px;font-weight:700;margin-top:4px;"></div>
       </div>
     </div>
+    <div id="nudge-card" class="card" style="display:none;margin-bottom:14px;border-color:var(--accent);background:linear-gradient(135deg,#1f1a10,var(--bg2));align-items:center;gap:12px;flex-direction:row;">
+      <div style="font-size:24px;">🤖</div>
+      <div style="flex:1;color:var(--text2);font-size:13px;" id="nudge-text"></div>
+      <button class="del-btn" onclick="dismissNudge()" style="font-size:16px;">✕</button>
+    </div>
     <div class="card card-accent" style="margin-bottom:14px;">
       <div class="now-label">🟡 Right Now</div>
       <div class="now-title" id="now-title">...</div>
@@ -330,6 +340,9 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
         <div class="qc-val">Chat now</div>
       </div>
     </div>
+    <div class="section-title">Badges</div>
+    <div id="badges-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;"></div>
+ 
     <div class="section-title">Today's Tasks</div>
     <div class="input-row">
       <input class="text-input" id="today-task-input" placeholder="Quick add task..." onkeydown="if(event.key==='Enter')addTask('today')"/>
@@ -450,6 +463,7 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
       <button class="suggest-btn" onclick="askJarvis('Show me my whole schedule')">Full schedule</button>
       <button class="suggest-btn" onclick="askJarvis('How am I doing today?')">How am I doing?</button>
       <button class="suggest-btn" onclick="askJarvis('What is my streak?')">My streak 🔥</button>
+      <button class="suggest-btn" onclick="askJarvis('What did I write yesterday?')">Search my log</button>
     </div>
     <div class="messages-box" id="jarvis-messages"></div>
     <div class="chat-row">
@@ -462,6 +476,31 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
  
   <!-- SETTINGS -->
   <div id="panel-settings" class="panel">
+ 
+    <div class="section-title">Identity</div>
+    <div class="settings-group">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">App Name</div>
+          <div class="settings-row-sub">Shown on login and top bar</div>
+        </div>
+        <input class="select-input" id="app-name-input" type="text" placeholder="Luffy's Space" style="width:140px;" onchange="setAppName(this.value)"/>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Avatar Icon</div>
+          <div class="settings-row-sub">Your logo emoji</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:200px;">
+          <button class="suggest-btn" onclick="setAppIcon('⚓')">⚓</button>
+          <button class="suggest-btn" onclick="setAppIcon('🏴‍☠️')">🏴‍☠️</button>
+          <button class="suggest-btn" onclick="setAppIcon('🔥')">🔥</button>
+          <button class="suggest-btn" onclick="setAppIcon('⚡')">⚡</button>
+          <button class="suggest-btn" onclick="setAppIcon('🚀')">🚀</button>
+          <button class="suggest-btn" onclick="setAppIcon('🎯')">🎯</button>
+        </div>
+      </div>
+    </div>
  
     <div class="section-title">Appearance</div>
     <div class="settings-group">
@@ -483,6 +522,17 @@ body.light .msg.jarvis { background:linear-gradient(135deg,#fffaf0,#fff); border
           <div onclick="setAccent('#4EB87A','#2A8A50','#A0ECC0')" style="width:24px;height:24px;border-radius:50%;background:#4EB87A;cursor:pointer;" title="Green"></div>
           <div onclick="setAccent('#B0A4FF','#7A6EE0','#D8D4FF')" style="width:24px;height:24px;border-radius:50%;background:#B0A4FF;cursor:pointer;" title="Purple"></div>
           <div onclick="setAccent('#ED6F70','#C03A3A','#FFB0B0')" style="width:24px;height:24px;border-radius:50%;background:#ED6F70;cursor:pointer;" title="Red"></div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Background Image</div>
+          <div class="settings-row-sub">Upload a subtle background</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <input type="file" id="bg-upload" accept="image/*" style="display:none;" onchange="setBackgroundImage(this)"/>
+          <button class="suggest-btn" onclick="document.getElementById('bg-upload').click()">Upload</button>
+          <button class="suggest-btn" onclick="clearBackgroundImage()">Clear</button>
         </div>
       </div>
     </div>
@@ -572,7 +622,7 @@ let schedule = JSON.parse(localStorage.getItem('ls2_schedule') || 'null') || [
   { start:'22:00', end:'23:59', title:'Sleep', desc:'Lights off, no screens.' },
 ];
 let settings = JSON.parse(localStorage.getItem('ls2_settings') || '{}');
-settings = Object.assign({ darkMode:true, newsInterval:5, voiceRate:0.95, speakReplies:true, accent:'#F4A93B', accentDark:'#C47D1A', accentLight:'#FFD080' }, settings);
+settings = Object.assign({ darkMode:true, newsInterval:5, voiceRate:0.95, speakReplies:true, accent:'#F4A93B', accentDark:'#C47D1A', accentLight:'#FFD080', appName:"Luffy's Space", appIcon:'⚓', bgImage:null }, settings);
  
 let NEWS = [];
 let FALLBACK_NEWS = [
@@ -639,6 +689,25 @@ function applySettings() {
   if (niSel) niSel.value = settings.newsInterval;
   const vrSel = document.getElementById('voice-rate-select');
   if (vrSel) vrSel.value = settings.voiceRate;
+ 
+  // Identity
+  document.getElementById('login-title-text').textContent = settings.appName.toUpperCase();
+  document.getElementById('login-glow-icon').textContent = settings.appIcon;
+  document.getElementById('topbar-name').textContent = settings.appName;
+  const initials = settings.appName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('topbar-av').textContent = initials;
+  const nameInput = document.getElementById('app-name-input');
+  if (nameInput) nameInput.value = settings.appName;
+ 
+  // Background image
+  if (settings.bgImage) {
+    document.body.style.backgroundImage = 'linear-gradient(rgba(13,13,15,0.85),rgba(13,13,15,0.85)), url('+settings.bgImage+')';
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.backgroundAttachment = 'fixed';
+    document.body.style.backgroundPosition = 'center';
+  } else {
+    document.body.style.backgroundImage = '';
+  }
 }
 function saveSettings() { localStorage.setItem('ls2_settings', JSON.stringify(settings)); }
  
@@ -650,6 +719,30 @@ function toggleTheme() {
 function setAccent(a, ad, al) {
   settings.accent = a; settings.accentDark = ad; settings.accentLight = al;
   saveSettings(); applySettings();
+}
+function setAppName(v) {
+  settings.appName = v.trim() || "Luffy's Space";
+  saveSettings(); applySettings();
+}
+function setAppIcon(emoji) {
+  settings.appIcon = emoji;
+  saveSettings(); applySettings();
+}
+function setBackgroundImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    settings.bgImage = e.target.result;
+    saveSettings();
+    applySettings();
+  };
+  reader.readAsDataURL(file);
+}
+function clearBackgroundImage() {
+  settings.bgImage = null;
+  saveSettings();
+  applySettings();
 }
 function toggleSpeech() {
   settings.speakReplies = !settings.speakReplies;
@@ -691,11 +784,13 @@ function logout() {
 function startClock() {
   function tick() {
     const now = new Date();
-    const h = now.getHours().toString().padStart(2,'0');
+    const h24 = now.getHours();
+    const ampm = h24>=12 ? 'PM' : 'AM';
+    const h12 = (h24%12)||12;
     const m = now.getMinutes().toString().padStart(2,'0');
     const s = now.getSeconds().toString().padStart(2,'0');
-    document.getElementById('clock').textContent = h+':'+m+':'+s;
-    document.getElementById('hero-clock').textContent = h+':'+m;
+    document.getElementById('clock').textContent = h12+':'+m+':'+s+' '+ampm;
+    document.getElementById('hero-clock').textContent = h12+':'+m+' '+ampm;
     const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     document.getElementById('hero-date').textContent = months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear();
@@ -749,6 +844,7 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
   if (btn) btn.classList.add('active');
+  if (name === 'jarvis') maybeGiveBriefing();
 }
 function switchTabByName(name) {
   const panels = ['today','tasks','schedule','log','news','jarvis','settings'];
@@ -757,8 +853,80 @@ function switchTabByName(name) {
   if (idx>=0) switchTab(name, btns[idx]);
 }
  
+let briefingGiven = false;
+function maybeGiveBriefing() {
+  if (briefingGiven || jarvisHistory.length > 0) return;
+  briefingGiven = true;
+  const now = new Date();
+  const mins = now.getHours()*60+now.getMinutes();
+  const cur = schedule.find(b=>mins>=toMins(b.start)&&mins<toMins(b.end));
+  const nxt = schedule.find(b=>toMins(b.start)>mins)||schedule[0];
+  const total=tasks.length, done=tasks.filter(t=>t.done).length, left=total-done;
+  const hour = now.getHours();
+  const greeting = hour<12 ? 'Good morning' : hour<18 ? 'Good afternoon' : 'Good evening';
+  let briefing = `${greeting}. `;
+  briefing += left>0 ? `You have ${left} task${left!==1?'s':''} left today. ` : (total>0 ? `All tasks complete — nice work. ` : `No tasks set yet today. `);
+  briefing += cur ? `Right now: "${cur.title}".` : `Up next: "${nxt.title}" at ${fmtTime(nxt.start)}.`;
+  if (streakData.count >= 2) briefing += ` You're on a ${streakData.count} day streak. 🔥`;
+  jarvisHistory.push({ role:'jarvis', content: briefing });
+  renderJarvisMessages();
+  if (settings.speakReplies) speakText(briefing);
+}
+ 
+// ── INACTIVITY NUDGE ──
+let lastTaskCompletionTime = Date.now();
+let nudgeShownAt = null;
+const NUDGE_THRESHOLD_MS = 45 * 60 * 1000; // 45 min of no completions
+let nudgeCheckTimer = null;
+ 
+function markTaskActivity() {
+  lastTaskCompletionTime = Date.now();
+  hideNudge();
+}
+function hideNudge() {
+  const el = document.getElementById('nudge-card');
+  if (el) el.style.display = 'none';
+  nudgeShownAt = null;
+}
+function dismissNudge() {
+  hideNudge();
+  lastTaskCompletionTime = Date.now(); // reset timer so it doesn't immediately re-show
+}
+function checkInactivityNudge() {
+  const now = new Date();
+  const hour = now.getHours();
+  const total = tasks.length, left = tasks.filter(t=>!t.done).length;
+  // Only nudge during reasonable hours, if there's something left to do, and app is open
+  if (hour < 8 || hour >= 22) return;
+  if (total === 0 || left === 0) return;
+  if (document.getElementById('app').style.display !== 'block') return;
+ 
+  const idle = Date.now() - lastTaskCompletionTime;
+  if (idle >= NUDGE_THRESHOLD_MS && !nudgeShownAt) {
+    nudgeShownAt = Date.now();
+    const messages = [
+      "Still there? You've got tasks waiting whenever you're ready.",
+      "No rush, just a nudge — a few tasks are still open today.",
+      "Quick check-in: anything you can knock out right now?",
+      "Whenever you're ready, your task list is right here."
+    ];
+    const msg = messages[Math.floor(Math.random()*messages.length)];
+    const card = document.getElementById('nudge-card');
+    const textEl = document.getElementById('nudge-text');
+    if (card && textEl) {
+      textEl.textContent = msg;
+      card.style.display = 'flex';
+    }
+  }
+}
+function startNudgeWatcher() {
+  if (nudgeCheckTimer) clearInterval(nudgeCheckTimer);
+  nudgeCheckTimer = setInterval(checkInactivityNudge, 60*1000); // check every minute
+}
+ 
 // ── TASKS ──
 const TAG_ICONS = { school:'📚', work:'💼', gym:'🏋️', personal:'🏠', errand:'🚗' };
+let expandedTaskId = null;
  
 function saveTasks() { localStorage.setItem('ls2_tasks', JSON.stringify(tasks)); }
 function addTask(src) {
@@ -769,7 +937,7 @@ function addTask(src) {
   const priority = src==='main'?(document.getElementById('task-priority').value):'med';
   const tag = src==='main' ? (document.getElementById('task-tag').value||'') : '';
   const recurring = src==='main' ? document.getElementById('task-recurring').checked : false;
-  tasks.push({ id:Date.now(), text, done:false, priority, tag, recurring, createdDate:todayKey() });
+  tasks.push({ id:Date.now(), text, done:false, priority, tag, recurring, createdDate:todayKey(), subtasks:[], blockTitle:null });
   saveTasks();
   input.value = '';
   if (src==='main') document.getElementById('task-recurring').checked = false;
@@ -778,9 +946,21 @@ function addTask(src) {
 function toggleTask(id) {
   tasks = tasks.map(t=>t.id===id?{...t,done:!t.done}:t);
   saveTasks(); renderTasks();
+  markTaskActivity();
 }
 function deleteTask(id) {
   tasks = tasks.filter(t=>t.id!==id);
+  saveTasks(); renderTasks();
+}
+function snoozeTask(id) {
+  const tmrw = new Date();
+  tmrw.setDate(tmrw.getDate()+1);
+  const tmrwKey = tmrw.getFullYear()+'-'+(tmrw.getMonth()+1)+'-'+tmrw.getDate();
+  tasks = tasks.map(t=>t.id===id?{...t, snoozedUntil:tmrwKey}:t);
+  saveTasks(); renderTasks();
+}
+function togglePin(id) {
+  tasks = tasks.map(t=>t.id===id?{...t, pinned:!t.pinned}:t);
   saveTasks(); renderTasks();
 }
 function filterTasks(f, btn) {
@@ -799,7 +979,6 @@ function clearTasks() {
   if (confirm('Delete all tasks?')) { tasks=[]; saveTasks(); renderTasks(); }
 }
 function resetRecurringTasks() {
-  // On a new day, uncheck recurring tasks so they show as active again
   const key = todayKey();
   const lastReset = localStorage.getItem('ls2_lastReset');
   if (lastReset !== key) {
@@ -808,6 +987,46 @@ function resetRecurringTasks() {
     localStorage.setItem('ls2_lastReset', key);
   }
 }
+ 
+// ── SUBTASKS ──
+function toggleExpand(id) {
+  expandedTaskId = expandedTaskId === id ? null : id;
+  renderTasks();
+}
+function addSubtask(taskId, inputEl) {
+  const text = inputEl.value.trim();
+  if (!text) return;
+  tasks = tasks.map(t => {
+    if (t.id !== taskId) return t;
+    const subtasks = t.subtasks || [];
+    subtasks.push({ id:Date.now(), text, done:false });
+    return {...t, subtasks};
+  });
+  inputEl.value = '';
+  saveTasks(); renderTasks();
+}
+function toggleSubtask(taskId, subId) {
+  tasks = tasks.map(t => {
+    if (t.id !== taskId) return t;
+    const subtasks = (t.subtasks||[]).map(s=>s.id===subId?{...s,done:!s.done}:s);
+    return {...t, subtasks};
+  });
+  saveTasks(); renderTasks();
+}
+function deleteSubtask(taskId, subId) {
+  tasks = tasks.map(t => {
+    if (t.id !== taskId) return t;
+    return {...t, subtasks:(t.subtasks||[]).filter(s=>s.id!==subId)};
+  });
+  saveTasks(); renderTasks();
+}
+ 
+// ── TIME-BLOCKING ──
+function assignTaskToBlock(taskId, blockTitle) {
+  tasks = tasks.map(t=>t.id===taskId?{...t,blockTitle:blockTitle||null}:t);
+  saveTasks(); renderTasks();
+}
+ 
 function renderTasks() {
   resetRecurringTasks();
   const total=tasks.length, done=tasks.filter(t=>t.done).length, left=total-done;
@@ -817,27 +1036,61 @@ function renderTasks() {
   document.getElementById('progress-bar').style.width=(total?Math.round(done/total*100):0)+'%';
   document.getElementById('qc-tasks').textContent=left+(left===1?' task':' tasks')+' left';
  
-  let filtered = tasks;
+  let filtered = tasks.filter(t => !(t.snoozedUntil && t.snoozedUntil > todayKey()));
   if (currentTaskFilter==='active') filtered=filtered.filter(t=>!t.done);
   else if (currentTaskFilter==='done') filtered=filtered.filter(t=>t.done);
   else if (['high','med','low'].includes(currentTaskFilter)) filtered=filtered.filter(t=>t.priority===currentTaskFilter);
   if (currentTag) filtered = filtered.filter(t=>t.tag===currentTag);
  
+  // Pinned tasks always float to top, regardless of filter/order
+  filtered = [...filtered].sort((a,b) => (b.pinned?1:0) - (a.pinned?1:0));
+ 
+  const scheduleOptions = '<option value="">No time block</option>' + schedule.map(b=>`<option value="${b.title}">${b.title} (${fmtTime(b.start)})</option>`).join('');
+ 
   const html = !filtered.length
     ? '<div class="empty">No tasks here — add one above!</div>'
-    : filtered.map(t=>`
-      <div class="task-item ${t.done?'done-item':''}">
-        <div class="check-box ${t.done?'checked':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
-        <span class="task-text ${t.done?'struck':''}">${t.text}</span>
-        ${t.tag ? '<span class="priority-badge" style="background:var(--bg3);color:var(--text2);">'+(TAG_ICONS[t.tag]||'')+' '+t.tag+'</span>' : ''}
-        ${t.recurring ? '<span class="priority-badge" style="background:var(--bg3);color:var(--accent);">🔁</span>' : ''}
-        <span class="priority-badge ${t.priority}">${t.priority}</span>
-        <button class="del-btn" onclick="deleteTask(${t.id})">🗑️</button>
-      </div>`).join('');
+    : filtered.map(t=>{
+      const subs = t.subtasks || [];
+      const subDone = subs.filter(s=>s.done).length;
+      const isExpanded = expandedTaskId === t.id;
+      return `
+      <div class="task-item ${t.done?'done-item':''}" style="flex-direction:column;align-items:stretch;${t.pinned?'border-color:var(--accent);':''}">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="del-btn" onclick="togglePin(${t.id})" title="Pin to top" style="font-size:14px;color:${t.pinned?'var(--accent)':'var(--text3)'};">📌</button>
+          <div class="check-box ${t.done?'checked':''}" onclick="toggleTask(${t.id})">${t.done?'✓':''}</div>
+          <span class="task-text ${t.done?'struck':''}" style="cursor:pointer;" onclick="toggleExpand(${t.id})">${t.text}${subs.length?' <span style=\"color:var(--text3);font-size:11px;\">('+subDone+'/'+subs.length+')</span>':''}</span>
+          ${t.tag ? '<span class="priority-badge" style="background:var(--bg3);color:var(--text2);">'+(TAG_ICONS[t.tag]||'')+' '+t.tag+'</span>' : ''}
+          ${t.recurring ? '<span class="priority-badge" style="background:var(--bg3);color:var(--accent);">🔁</span>' : ''}
+          ${t.blockTitle ? '<span class="priority-badge" style="background:var(--bg3);color:var(--blue);">🕐 '+t.blockTitle+'</span>' : ''}
+          <span class="priority-badge ${t.priority}">${t.priority}</span>
+          <button class="del-btn" onclick="snoozeTask(${t.id})" title="Snooze to tomorrow">⏰</button>
+          <button class="del-btn" onclick="toggleExpand(${t.id})" title="Subtasks & scheduling">${isExpanded?'▲':'▼'}</button>
+          <button class="del-btn" onclick="deleteTask(${t.id})">🗑️</button>
+        </div>
+        ${isExpanded ? `
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+          <div style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Subtasks</div>
+          ${subs.map(s=>`
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div class="check-box ${s.done?'checked':''}" style="width:16px;height:16px;" onclick="toggleSubtask(${t.id},${s.id})">${s.done?'✓':''}</div>
+              <span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};text-decoration:${s.done?'line-through':'none'};">${s.text}</span>
+              <button class="del-btn" style="font-size:12px;" onclick="deleteSubtask(${t.id},${s.id})">🗑️</button>
+            </div>`).join('')}
+          <div style="display:flex;gap:6px;margin-bottom:10px;">
+            <input class="text-input" style="font-size:12px;padding:7px 10px;" placeholder="Add subtask..." onkeydown="if(event.key==='Enter'){addSubtask(${t.id},this);}"/>
+          </div>
+          <div style="color:var(--text3);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Time Block</div>
+          <select class="select-input" style="width:100%;" onchange="assignTaskToBlock(${t.id}, this.value)">
+            ${scheduleOptions.replace('value="'+(t.blockTitle||'__none__')+'"', 'value="'+(t.blockTitle||'')+'" selected')}
+          </select>
+        </div>` : ''}
+      </div>`;
+    }).join('');
  
   document.getElementById('task-list').innerHTML = html;
   document.getElementById('today-task-list').innerHTML = html;
   checkStreak();
+  checkBadges();
   if (total > 0 && left === 0 && !confettiPlayed) {
     confettiPlayed = true;
     fireConfetti();
@@ -880,6 +1133,62 @@ function renderStreak() {
   }
 }
  
+// ── ACHIEVEMENT BADGES ──
+const BADGES = [
+  { id:'first_task', icon:'✅', label:'First Step', desc:'Complete your first task', check: () => tasks.filter(t=>t.done).length >= 1 },
+  { id:'ten_tasks', icon:'🔟', label:'Getting Going', desc:'Complete 10 tasks total', check: () => getTotalCompletedCount() >= 10 },
+  { id:'hundred_tasks', icon:'💯', label:'Centurion', desc:'Complete 100 tasks total', check: () => getTotalCompletedCount() >= 100 },
+  { id:'streak_3', icon:'🔥', label:'On a Roll', desc:'3 day streak', check: () => streakData.count >= 3 },
+  { id:'streak_7', icon:'🏆', label:'Week Warrior', desc:'7 day streak', check: () => streakData.count >= 7 },
+  { id:'streak_30', icon:'👑', label:'Unstoppable', desc:'30 day streak', check: () => streakData.count >= 30 },
+  { id:'early_bird', icon:'🌅', label:'Early Bird', desc:'Complete a task before 9am', check: () => checkEarlyBird() },
+  { id:'first_log', icon:'📓', label:'Journalist', desc:'Write your first log entry', check: () => logs.length >= 1 },
+  { id:'pomo_master', icon:'🍅', label:'Focus Master', desc:'Finish a Pomodoro session', check: () => localStorage.getItem('ls2_pomo_done')==='true' },
+];
+ 
+function getTotalCompletedCount() {
+  const stored = parseInt(localStorage.getItem('ls2_totalCompleted')||'0');
+  return stored;
+}
+function checkEarlyBird() {
+  return localStorage.getItem('ls2_earlyBird') === 'true';
+}
+function checkBadges() {
+  // Track total completed count (increments, never decrements, across all-time)
+  const doneNow = tasks.filter(t=>t.done).length;
+  const prevDoneSnapshot = parseInt(sessionStorage.getItem('ls2_doneSnapshot')||doneNow);
+  if (doneNow > prevDoneSnapshot) {
+    const totalCompleted = getTotalCompletedCount() + (doneNow - prevDoneSnapshot);
+    localStorage.setItem('ls2_totalCompleted', totalCompleted);
+    const hour = new Date().getHours();
+    if (hour < 9) localStorage.setItem('ls2_earlyBird','true');
+  }
+  sessionStorage.setItem('ls2_doneSnapshot', doneNow);
+  renderBadges();
+}
+function renderBadges() {
+  const el = document.getElementById('badges-row');
+  if (!el) return;
+  let unlocked = JSON.parse(localStorage.getItem('ls2_badges')||'[]');
+  let newlyUnlocked = [];
+  BADGES.forEach(b=>{
+    if (!unlocked.includes(b.id) && b.check()) {
+      unlocked.push(b.id);
+      newlyUnlocked.push(b);
+    }
+  });
+  if (newlyUnlocked.length) {
+    localStorage.setItem('ls2_badges', JSON.stringify(unlocked));
+    fireConfetti();
+  }
+  el.innerHTML = BADGES.map(b=>{
+    const isUnlocked = unlocked.includes(b.id);
+    return `<div class="badge-pill ${isUnlocked?'unlocked':'locked'}" title="${b.desc}">
+      <span class="badge-icon">${b.icon}</span> ${b.label}
+    </div>`;
+  }).join('');
+}
+ 
 // ── POMODORO ──
 function pomoFormat(s) {
   const m = Math.floor(s/60), sec = s%60;
@@ -903,6 +1212,10 @@ function pomoToggle() {
         clearInterval(pomoTimer);
         pomoRunning = false;
         document.getElementById('pomo-start-btn').textContent = '▶️ Start';
+        if (pomoIsFocus) {
+          localStorage.setItem('ls2_pomo_done','true');
+          renderBadges();
+        }
         if (window.speechSynthesis) {
           const msg = pomoIsFocus ? "Focus session complete. Time for a break." : "Break's over. Back to focus.";
           speakText(msg);
@@ -1159,7 +1472,7 @@ function generateReply(text) {
   if (/^add\b|^create\b|remind me to/.test(text) && addMatch && addMatch[1]) {
     let taskText = addMatch[1].trim().replace(/^(a|an|the)\s+/i,'');
     if (taskText.length > 1) {
-      tasks.push({ id: Date.now(), text: taskText, done:false, priority:'med' });
+      tasks.push({ id: Date.now(), text: taskText, done:false, priority:'med', tag:'', recurring:false, subtasks:[], blockTitle:null, createdDate:todayKey() });
       saveTasks();
       renderTasks();
       return `Added "${taskText}" to your tasks. ✅`;
@@ -1182,6 +1495,62 @@ function generateReply(text) {
     }
   }
  
+  // Schedule editing: "move X to HH:MM" / "change X to start at HH:MM"
+  let moveMatch = text.match(/move\s+(.+?)\s+to\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  if (moveMatch) {
+    const blockQuery = moveMatch[1].trim().toLowerCase();
+    const block = schedule.find(b=>b.title.toLowerCase().includes(blockQuery));
+    if (block) {
+      let h = parseInt(moveMatch[2]);
+      const m = moveMatch[3] ? parseInt(moveMatch[3]) : 0;
+      const ampm = (moveMatch[4]||'').toLowerCase();
+      if (ampm==='pm' && h<12) h+=12;
+      if (ampm==='am' && h===12) h=0;
+      const duration = toMins(block.end) - toMins(block.start);
+      const newStartMins = h*60+m;
+      const newEndMins = newStartMins + duration;
+      block.start = String(Math.floor(newStartMins/60)).padStart(2,'0')+':'+String(newStartMins%60).padStart(2,'0');
+      block.end = String(Math.floor(newEndMins/60)).padStart(2,'0')+':'+String(newEndMins%60).padStart(2,'0');
+      localStorage.setItem('ls2_schedule', JSON.stringify(schedule));
+      renderSchedule(); renderScheduleEditor();
+      return `Moved "${block.title}" to start at ${fmtTime(block.start)}. ✅`;
+    }
+    return `I couldn't find a schedule block matching "${blockQuery}".`;
+  }
+ 
+  // Add schedule block: "add a block called X at HH:MM"
+  let addBlockMatch = text.match(/add\s+(?:a\s+)?(?:new\s+)?block\s+(?:called\s+)?["']?(.+?)["']?\s+at\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i);
+  if (addBlockMatch) {
+    const title = addBlockMatch[1].trim();
+    let h = parseInt(addBlockMatch[2]);
+    const m = addBlockMatch[3] ? parseInt(addBlockMatch[3]) : 0;
+    const ampm = (addBlockMatch[4]||'').toLowerCase();
+    if (ampm==='pm' && h<12) h+=12;
+    if (ampm==='am' && h===12) h=0;
+    const startMins = h*60+m;
+    const endMins = startMins+60;
+    const start = String(Math.floor(startMins/60)).padStart(2,'0')+':'+String(startMins%60).padStart(2,'0');
+    const end = String(Math.floor(endMins/60)).padStart(2,'0')+':'+String(endMins%60).padStart(2,'0');
+    schedule.push({ start, end, title, desc:'' });
+    schedule.sort((a,b)=>toMins(a.start)-toMins(b.start));
+    localStorage.setItem('ls2_schedule', JSON.stringify(schedule));
+    renderSchedule(); renderScheduleEditor();
+    return `Added "${title}" to your schedule at ${fmtTime(start)}. ✅`;
+  }
+ 
+  // Log search: "what did I write [on/last] X" / "search my logs for X"
+  let logSearchMatch = text.match(/what did i (?:write|log|journal)(?:.*?on|.*?last)?\s*(.+)/i)
+    || text.match(/search (?:my )?logs? for\s+(.+)/i);
+  if (logSearchMatch && logSearchMatch[1]) {
+    const query = logSearchMatch[1].trim().toLowerCase();
+    const matches = logs.filter(l => l.time.toLowerCase().includes(query) || l.text.toLowerCase().includes(query));
+    if (matches.length) {
+      return matches.slice(0,3).map(l=>`(${l.time}) ${l.mood?l.mood+' ':''}${l.text}`).join('\n\n');
+    }
+    return `I couldn't find any log entries matching "${query}".`;
+  }
+ 
+ 
   if (/^(hi|hey|hello|yo|sup|what's up|wassup)\b/.test(text))
     return `At your service. You have ${left} task${left!==1?'s':''} left today${highLeft>0?' — including '+highLeft+' high priority':''}.`;
   if (/what (should i|am i|to) (do|be doing|work on)/.test(text)||text.includes('right now'))
@@ -1199,8 +1568,8 @@ function generateReply(text) {
       ? `Not quite — you're in "${cur.title}" until ${fmtTime(cur.end)}.`
       : `Yes, you're free right now! Next block: "${nxt.title}" at ${fmtTime(nxt.start)}.`;
   if (/what time|current time/.test(text)) {
-    const h=now.getHours().toString().padStart(2,'0'), m=now.getMinutes().toString().padStart(2,'0');
-    return `It's ${h}:${m} right now.`;
+    const h24=now.getHours(), ampm=h24>=12?'PM':'AM', h12=(h24%12)||12, m=now.getMinutes().toString().padStart(2,'0');
+    return `It's ${h12}:${m} ${ampm} right now.`;
   }
   if (/schedule|plan|routine|day look/.test(text))
     return 'Your schedule:\n'+schedule.map(b=>`• ${fmtTime(b.start)}–${fmtTime(b.end)}: ${b.title}`).join('\n');
