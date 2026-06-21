@@ -121,6 +121,13 @@ body.light .hero-card { background:linear-gradient(135deg, #fff8ee, #fff); borde
 .primary-btn:active { transform:scale(0.96); background:var(--accent-dark); }
 .full-btn { width:100%; margin-bottom:12px; padding:13px; }
 .task-item { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-md); padding:12px 14px; display:flex; align-items:center; gap:12px; margin-bottom:8px; transition:all var(--transition); }
+.habit-item { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-md); padding:14px; display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+.habit-name { flex:1; color:var(--text); font-size:14px; font-weight:600; }
+.habit-streak { color:var(--accent); font-size:12px; font-weight:700; white-space:nowrap; }
+.habit-check { width:32px; height:32px; border-radius:50%; border:2px solid var(--border2); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:16px; transition:all var(--transition); flex-shrink:0; }
+.habit-check.done { background:var(--green); border-color:var(--green); color:#fff; }
+.template-item { background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-md); padding:12px 14px; display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.template-name { flex:1; color:var(--text); font-size:13px; font-weight:600; }
 .task-item.done-item { opacity:0.55; }
 .check-box { width:20px; height:20px; border:2px solid var(--border2); border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all var(--transition); font-size:12px; }
 .check-box.checked { background:var(--accent); border-color:var(--accent); color:#16110a; }
@@ -275,8 +282,10 @@ body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff
   <div class="nav" id="main-nav">
     <button class="nav-btn active" onclick="switchTab('today',this)">☀️ Today</button>
     <button class="nav-btn" onclick="switchTab('tasks',this)">✅ Tasks</button>
+    <button class="nav-btn" onclick="switchTab('habits',this)">🔄 Habits</button>
     <button class="nav-btn" onclick="switchTab('schedule',this)">🕐 Schedule</button>
     <button class="nav-btn" onclick="switchTab('log',this)">📓 Log</button>
+    <button class="nav-btn" onclick="switchTab('stats',this)">📊 Stats</button>
     <button class="nav-btn" onclick="switchTab('news',this)">📰 News</button>
     <button class="nav-btn" onclick="switchTab('jarvis',this)">🤖 Jarvis</button>
     <button class="nav-btn" onclick="switchTab('settings',this)" id="nav-settings">⚙️ Settings</button>
@@ -398,6 +407,23 @@ body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff
       <button class="filter-btn" onclick="filterTag('errand',this)">🚗 Errand</button>
     </div>
     <div id="task-list"></div>
+ 
+    <div class="section-title">Task Templates</div>
+    <div class="input-row">
+      <input class="text-input" id="template-name-input" placeholder="Template name (e.g. Morning Routine)..."/>
+      <button class="primary-btn" onclick="saveAsTemplate()">💾 Save current as template</button>
+    </div>
+    <div id="template-list"></div>
+  </div>
+ 
+  <!-- HABITS -->
+  <div id="panel-habits" class="panel">
+    <div class="section-title">Daily Habits</div>
+    <div class="input-row">
+      <input class="text-input" id="habit-input" placeholder="New habit (e.g. Drink water)..." onkeydown="if(event.key==='Enter')addHabit()"/>
+      <button class="primary-btn" onclick="addHabit()">➕</button>
+    </div>
+    <div id="habit-list"></div>
   </div>
  
   <!-- SCHEDULE -->
@@ -426,6 +452,24 @@ body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff
     <button class="primary-btn full-btn" onclick="addLog()">➕ Save Entry</button>
     <div class="section-title">Recent Entries</div>
     <div id="log-list"></div>
+  </div>
+ 
+  <!-- STATS -->
+  <div id="panel-stats" class="panel">
+    <div class="section-title">Last 14 Days</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div id="stats-bars" style="display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:10px;"></div>
+      <div id="stats-labels" style="display:flex;gap:6px;margin-top:6px;"></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="stat-longest-streak">0</div><div class="stat-lbl">Longest Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-total-completed">0</div><div class="stat-lbl">Total Done</div></div>
+      <div class="stat-box"><div class="stat-num" id="stat-avg-day">0</div><div class="stat-lbl">Avg/Day</div></div>
+    </div>
+    <div class="section-title">Mood Trend</div>
+    <div class="card" id="mood-trend-card">
+      <div class="empty">No mood data yet — pick a mood when journaling.</div>
+    </div>
   </div>
  
   <!-- NEWS -->
@@ -556,6 +600,15 @@ body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff
     </div>
  
     <div class="section-title">Schedule</div>
+    <div class="settings-group">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Separate weekend schedule</div>
+          <div class="settings-row-sub">Use a different routine on Sat/Sun</div>
+        </div>
+        <button class="toggle" id="toggle-weekend" onclick="toggleWeekendSchedule()"></button>
+      </div>
+    </div>
     <div id="sched-edit-list"></div>
     <button class="primary-btn full-btn" onclick="addSchedBlock()">➕ Add Block</button>
     <button class="primary-btn full-btn" style="background:var(--bg3);color:var(--text);margin-top:-4px;" onclick="saveSchedule()">💾 Save Schedule</button>
@@ -604,6 +657,20 @@ body.light .badge-pill.unlocked { background:linear-gradient(135deg,#fffaf0,#fff
   </div>
 </div>
  
+<!-- QUICK CAPTURE -->
+<button id="quick-capture-btn" onclick="openQuickCapture()" style="display:none;position:fixed;bottom:24px;right:20px;width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;font-size:24px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.4);z-index:500;">✏️</button>
+<div id="quick-capture-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:flex-end;justify-content:center;">
+  <div style="background:var(--bg2);border-top-left-radius:20px;border-top-right-radius:20px;padding:20px;width:100%;max-width:500px;">
+    <div style="color:var(--text);font-size:15px;font-weight:700;margin-bottom:10px;">Quick Capture</div>
+    <textarea class="log-textarea" id="quick-capture-input" placeholder="Jot a thought..." style="min-height:60px;"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button class="primary-btn" style="flex:1;" onclick="quickCaptureSave('task')">➕ As Task</button>
+      <button class="primary-btn" style="flex:1;background:var(--bg3);color:var(--text);" onclick="quickCaptureSave('log')">📓 As Log</button>
+    </div>
+    <button class="del-btn" style="width:100%;margin-top:10px;text-align:center;" onclick="closeQuickCapture()">Cancel</button>
+  </div>
+</div>
+ 
 <script>
 // ── STATE ──
 const USERS = { luffy: 'puku' };
@@ -649,7 +716,13 @@ let pomoSeconds = 25*60;
 let pomoRunning = false;
 let pomoTimer = null;
 let pomoIsFocus = true;
-let streakData = JSON.parse(localStorage.getItem('ls2_streak') || '{"count":0,"lastDate":null}');
+let streakData = JSON.parse(localStorage.getItem('ls2_streak') || '{"count":0,"lastDate":null,"longest":0,"history":{}}');
+if (streakData.longest === undefined) streakData.longest = 0;
+if (!streakData.history) streakData.history = {};
+let habits = JSON.parse(localStorage.getItem('ls2_habits') || '[]');
+let templates = JSON.parse(localStorage.getItem('ls2_templates') || '[]');
+let weekendSchedule = JSON.parse(localStorage.getItem('ls2_weekendSchedule') || 'null');
+let useSeparateWeekend = JSON.parse(localStorage.getItem('ls2_useWeekend') || 'false');
 let currentTag = '';
 let schedView = 'today';
 let selectedMood = null;
@@ -813,9 +886,10 @@ function fmtTime(timeStr) {
 }
  
 function updateNowCard(now) {
+  const activeSched = getActiveSchedule();
   const mins = now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
-  const cur = schedule.find(b=>mins>=toMins(b.start)&&mins<toMins(b.end));
-  const nxt = schedule.find(b=>toMins(b.start)>mins)||schedule[0];
+  const cur = activeSched.find(b=>mins>=toMins(b.start)&&mins<toMins(b.end));
+  const nxt = activeSched.find(b=>toMins(b.start)>mins)||activeSched[0];
   const countdownEl = document.getElementById('now-countdown');
   if (cur) {
     document.getElementById('now-title').textContent = cur.title;
@@ -847,7 +921,7 @@ function switchTab(name, btn) {
   if (name === 'jarvis') maybeGiveBriefing();
 }
 function switchTabByName(name) {
-  const panels = ['today','tasks','schedule','log','news','jarvis','settings'];
+  const panels = ['today','tasks','habits','schedule','log','stats','news','jarvis','settings'];
   const idx = panels.indexOf(name);
   const btns = document.querySelectorAll('.nav-btn');
   if (idx>=0) switchTab(name, btns[idx]);
@@ -988,6 +1062,112 @@ function resetRecurringTasks() {
   }
 }
  
+// ── HABITS ──
+function saveHabits() { localStorage.setItem('ls2_habits', JSON.stringify(habits)); }
+function addHabit() {
+  const input = document.getElementById('habit-input');
+  const text = input.value.trim();
+  if (!text) return;
+  habits.push({ id:Date.now(), name:text, streak:0, lastDate:null, history:{} });
+  saveHabits();
+  input.value = '';
+  renderHabits();
+}
+function toggleHabitToday(id) {
+  const key = todayKey();
+  habits = habits.map(h=>{
+    if (h.id !== id) return h;
+    const wasdone = h.history[key];
+    const newHistory = {...h.history};
+    let streak = h.streak;
+    if (wasdone) {
+      delete newHistory[key];
+      streak = Math.max(0, streak-1);
+    } else {
+      newHistory[key] = true;
+      const yest = new Date(); yest.setDate(yest.getDate()-1);
+      const yestKey = yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();
+      streak = h.lastDate===yestKey ? h.streak+1 : 1;
+    }
+    return {...h, history:newHistory, streak, lastDate: !wasdone ? key : h.lastDate};
+  });
+  saveHabits();
+  renderHabits();
+}
+function deleteHabit(id) {
+  habits = habits.filter(h=>h.id!==id);
+  saveHabits(); renderHabits();
+}
+function renderHabits() {
+  const key = todayKey();
+  document.getElementById('habit-list').innerHTML = !habits.length
+    ? '<div class="empty">No habits yet — add one above to start tracking daily.</div>'
+    : habits.map(h=>{
+      const doneToday = !!h.history[key];
+      return `<div class="habit-item">
+        <div class="habit-check ${doneToday?'done':''}" onclick="toggleHabitToday(${h.id})">${doneToday?'✓':''}</div>
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-streak">${h.streak>0?'🔥 '+h.streak:''}</div>
+        <button class="del-btn" onclick="deleteHabit(${h.id})">🗑️</button>
+      </div>`;
+    }).join('');
+}
+ 
+// ── TASK TEMPLATES ──
+function saveTemplates() { localStorage.setItem('ls2_templates', JSON.stringify(templates)); }
+function saveAsTemplate() {
+  const nameInput = document.getElementById('template-name-input');
+  const name = nameInput.value.trim();
+  if (!name) { alert('Give your template a name first.'); return; }
+  const activeTasks = tasks.filter(t=>!t.done).map(t=>({ text:t.text, priority:t.priority, tag:t.tag||'' }));
+  if (!activeTasks.length) { alert('No active tasks to save as a template.'); return; }
+  templates.push({ id:Date.now(), name, items:activeTasks });
+  saveTemplates();
+  nameInput.value = '';
+  renderTemplates();
+  alert('Template "'+name+'" saved with '+activeTasks.length+' tasks! ✅');
+}
+function loadTemplate(id) {
+  const tpl = templates.find(t=>t.id===id);
+  if (!tpl) return;
+  tpl.items.forEach(item=>{
+    tasks.push({ id:Date.now()+Math.random(), text:item.text, done:false, priority:item.priority, tag:item.tag });
+  });
+  saveTasks();
+  renderTasks();
+  alert('Loaded "'+tpl.name+'" — '+tpl.items.length+' tasks added! ✅');
+}
+function deleteTemplate(id) {
+  templates = templates.filter(t=>t.id!==id);
+  saveTemplates(); renderTemplates();
+}
+function renderTemplates() {
+  document.getElementById('template-list').innerHTML = !templates.length
+    ? '<div class="empty">No templates saved yet.</div>'
+    : templates.map(t=>`<div class="template-item">
+        <span class="template-name">${t.name} <span style="color:var(--text3);font-size:11px;">(${t.items.length} tasks)</span></span>
+        <button class="primary-btn" style="padding:6px 12px;font-size:12px;" onclick="loadTemplate(${t.id})">Load</button>
+        <button class="del-btn" onclick="deleteTemplate(${t.id})">🗑️</button>
+      </div>`).join('');
+}
+ 
+// ── MULTIPLE SCHEDULES (weekday/weekend) ──
+function getActiveSchedule() {
+  if (!useSeparateWeekend || !weekendSchedule) return schedule;
+  const day = new Date().getDay();
+  return (day===0||day===6) ? weekendSchedule : schedule;
+}
+function toggleWeekendSchedule() {
+  useSeparateWeekend = !useSeparateWeekend;
+  localStorage.setItem('ls2_useWeekend', JSON.stringify(useSeparateWeekend));
+  if (useSeparateWeekend && !weekendSchedule) {
+    weekendSchedule = JSON.parse(JSON.stringify(schedule));
+    localStorage.setItem('ls2_weekendSchedule', JSON.stringify(weekendSchedule));
+  }
+  renderSchedule();
+  document.getElementById('toggle-weekend').className = 'toggle'+(useSeparateWeekend?' on':'');
+}
+ 
 // ── SUBTASKS ──
 function toggleExpand(id) {
   expandedTaskId = expandedTaskId === id ? null : id;
@@ -1091,6 +1271,7 @@ function renderTasks() {
   document.getElementById('today-task-list').innerHTML = html;
   checkStreak();
   checkBadges();
+  if (document.getElementById('stats-bars')) renderStats();
   if (total > 0 && left === 0 && !confettiPlayed) {
     confettiPlayed = true;
     fireConfetti();
@@ -1109,8 +1290,10 @@ function checkStreak() {
   const allDone = total > 0 && done === total;
   const key = todayKey();
  
+  // Record today's completion count/total for analytics, regardless of streak status
+  streakData.history[key] = { done, total };
+ 
   if (allDone && streakData.lastDate !== key) {
-    // Check if yesterday was the last completion (consecutive) or starting fresh
     const yest = new Date(); yest.setDate(yest.getDate()-1);
     const yestKey = yest.getFullYear()+'-'+(yest.getMonth()+1)+'-'+yest.getDate();
     if (streakData.lastDate === yestKey) {
@@ -1119,8 +1302,9 @@ function checkStreak() {
       streakData.count = 1;
     }
     streakData.lastDate = key;
-    localStorage.setItem('ls2_streak', JSON.stringify(streakData));
+    if (streakData.count > (streakData.longest||0)) streakData.longest = streakData.count;
   }
+  localStorage.setItem('ls2_streak', JSON.stringify(streakData));
   renderStreak();
 }
 function renderStreak() {
@@ -1130,6 +1314,50 @@ function renderStreak() {
     el.textContent = '🔥 '+streakData.count+' day streak';
   } else {
     el.textContent = '';
+  }
+}
+ 
+// ── STATS / ANALYTICS ──
+function renderStats() {
+  const barsEl = document.getElementById('stats-bars');
+  const labelsEl = document.getElementById('stats-labels');
+  if (!barsEl) return;
+ 
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    const key = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    const entry = streakData.history[key] || {done:0,total:0};
+    days.push({ key, label: d.toLocaleDateString([], {weekday:'narrow'}), done: entry.done, total: entry.total });
+  }
+  const maxDone = Math.max(1, ...days.map(d=>d.done));
+ 
+  barsEl.innerHTML = days.map(d=>{
+    const h = d.total>0 ? Math.max(4, Math.round((d.done/maxDone)*120)) : 2;
+    const color = d.total>0 && d.done===d.total ? 'var(--green)' : 'var(--accent)';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+      <div style="font-size:9px;color:var(--text3);margin-bottom:2px;">${d.total>0?d.done:''}</div>
+      <div style="width:100%;background:${color};border-radius:4px 4px 0 0;height:${h}px;opacity:${d.total>0?1:0.2};"></div>
+    </div>`;
+  }).join('');
+  labelsEl.innerHTML = days.map(d=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--text3);">${d.label}</div>`).join('');
+ 
+  const totalCompleted = Object.values(streakData.history).reduce((sum,d)=>sum+(d.done||0),0);
+  const daysWithData = Object.values(streakData.history).filter(d=>d.total>0).length;
+  const avgPerDay = daysWithData>0 ? Math.round(totalCompleted/daysWithData*10)/10 : 0;
+ 
+  document.getElementById('stat-longest-streak').textContent = streakData.longest || 0;
+  document.getElementById('stat-total-completed').textContent = totalCompleted;
+  document.getElementById('stat-avg-day').textContent = avgPerDay;
+ 
+  // Mood trend (last 7 logs with mood)
+  const moodLogs = logs.filter(l=>l.mood).slice(0,7).reverse();
+  const moodCard = document.getElementById('mood-trend-card');
+  if (moodCard) {
+    moodCard.innerHTML = moodLogs.length
+      ? '<div style="display:flex;gap:10px;justify-content:space-around;font-size:24px;">' + moodLogs.map(l=>`<div style="text-align:center;"><div>${l.mood}</div><div style="font-size:9px;color:var(--text3);margin-top:4px;">${l.time.split(',')[0]}</div></div>`).join('') + '</div>'
+      : '<div class="empty">No mood data yet — pick a mood when journaling.</div>';
   }
 }
  
@@ -1275,8 +1503,10 @@ function renderSchedule() {
     let html = '';
     for (let d = 0; d < 7; d++) {
       const isToday = d === todayIdx;
-      html += `<div class="section-title" style="margin-top:${d===0?'0':'18px'};">${days[d]}${isToday?' (Today)':''}</div>`;
-      html += schedule.map(b=>{
+      const isWeekendDay = (d===0||d===6);
+      const daySched = (useSeparateWeekend && isWeekendDay && weekendSchedule) ? weekendSchedule : schedule;
+      html += `<div class="section-title" style="margin-top:${d===0?'0':'18px'};">${days[d]}${isToday?' (Today)':''}${isWeekendDay&&useSeparateWeekend?' 🌴':''}</div>`;
+      html += daySched.map(b=>{
         const isCur = isToday && mins>=toMins(b.start)&&mins<toMins(b.end);
         return `<div class="sched-item ${isCur?'active-block':''}">
           <div class="sched-time">${fmtTime(b.start)}<br>${fmtTime(b.end)}</div>
@@ -1291,7 +1521,8 @@ function renderSchedule() {
     return;
   }
  
-  document.getElementById('sched-list').innerHTML = schedule.map(b=>{
+  const activeSched = getActiveSchedule();
+  document.getElementById('sched-list').innerHTML = activeSched.map(b=>{
     const isCur = mins>=toMins(b.start)&&mins<toMins(b.end);
     return `<div class="sched-item ${isCur?'active-block':''}">
       <div class="sched-time">${fmtTime(b.start)}<br>${fmtTime(b.end)}</div>
@@ -1716,6 +1947,12 @@ function enterApp() {
   renderStreak();
   pomoUpdateDisplay();
   showDailyQuote();
+  renderHabits();
+  renderTemplates();
+  renderStats();
+  document.getElementById('quick-capture-btn').style.display = 'flex';
+  document.getElementById('toggle-weekend').className = 'toggle'+(useSeparateWeekend?' on':'');
+  maybeShowEndOfDaySummary();
 }
  
 (function initFaceID() {
@@ -1786,6 +2023,75 @@ function fireConfetti() {
     }
   }
   animate();
+}
+ 
+// ── QUICK CAPTURE ──
+function openQuickCapture() {
+  document.getElementById('quick-capture-modal').style.display = 'flex';
+  document.getElementById('quick-capture-input').value = '';
+  setTimeout(()=>document.getElementById('quick-capture-input').focus(), 100);
+}
+function closeQuickCapture() {
+  document.getElementById('quick-capture-modal').style.display = 'none';
+}
+function quickCaptureSave(type) {
+  const input = document.getElementById('quick-capture-input');
+  const text = input.value.trim();
+  if (!text) { closeQuickCapture(); return; }
+  if (type === 'task') {
+    tasks.push({ id:Date.now(), text, done:false, priority:'med', tag:'' });
+    saveTasks();
+    renderTasks();
+  } else {
+    logs.unshift({ id:Date.now(), text, mood:null, time:new Date().toLocaleString([],{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) });
+    saveLogs();
+    renderLogs();
+  }
+  closeQuickCapture();
+}
+ 
+// ── KEYBOARD SHORTCUTS (desktop/laptop) ──
+document.addEventListener('keydown', (e) => {
+  // Ignore if typing in an input/textarea
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+    if (e.key === 'Escape') document.activeElement.blur();
+    return;
+  }
+  if (document.getElementById('app').style.display !== 'block') return;
+ 
+  if (e.key.toLowerCase() === 'n') {
+    e.preventDefault();
+    openQuickCapture();
+    return;
+  }
+  const tabMap = { '1':'today','2':'tasks','3':'habits','4':'schedule','5':'log','6':'stats','7':'news','8':'jarvis','9':'settings' };
+  if (tabMap[e.key]) {
+    e.preventDefault();
+    switchTabByName(tabMap[e.key]);
+  }
+});
+ 
+// ── END OF DAY SUMMARY ──
+function maybeShowEndOfDaySummary() {
+  const hour = new Date().getHours();
+  const key = todayKey();
+  const shownKey = localStorage.getItem('ls2_eodShown');
+  if (hour < 20 || shownKey === key) return;
+  localStorage.setItem('ls2_eodShown', key);
+ 
+  const total = tasks.length, done = tasks.filter(t=>t.done).length;
+  const moodToday = logs.find(l=>l.time && l.time.includes(new Date().toLocaleDateString([],{month:'short',day:'numeric'})) && l.mood);
+  let summary = `📋 End of day recap: ${done}/${total} tasks completed today.`;
+  if (total > 0 && done === total) summary += ' Everything done — great work! 🎉';
+  else if (total - done > 0) summary += ` ${total-done} still open if you want to wrap those up.`;
+  if (moodToday) summary += ` Mood today: ${moodToday.mood}.`;
+  if (streakData.count > 0) summary += ` Current streak: ${streakData.count} days 🔥`;
+ 
+  setTimeout(()=>{
+    jarvisHistory.push({ role:'jarvis', content: summary });
+    renderJarvisMessages();
+  }, 1500);
 }
  
 // ── INIT ──
